@@ -53,6 +53,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
     local CONST_COMM_PLAYER_ALIVE_PREFIX = "A"
     local CONST_COMM_PLAYERINFO_PREFIX = "P"
     local CONST_COMM_PLAYERINFO_TALENTS_PREFIX = "T"
+    local CONST_COMM_PLAYERINFO_PVPTALENTS_PREFIX = "V"
 
     local CONST_ONE_SECOND = 1.0
     local CONST_TWO_SECONDS = 2.0
@@ -279,7 +280,8 @@ LIB_OPEN_RAID_CAN_LOAD = false
         [CONST_COMM_PLAYER_DEAD_PREFIX] = {}, --player is dead
         [CONST_COMM_PLAYER_ALIVE_PREFIX] = {}, --player is alive
         [CONST_COMM_PLAYERINFO_PREFIX] = {}, --info about the player
-        [CONST_COMM_PLAYERINFO_TALENTS_PREFIX] = {}, --cooldown info
+        [CONST_COMM_PLAYERINFO_TALENTS_PREFIX] = {}, --talents info
+        [CONST_COMM_PLAYERINFO_PVPTALENTS_PREFIX] = {}, --pvp talents info
     }
 
     function openRaidLib.commHandler.RegisterComm(prefix, func)
@@ -395,6 +397,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         "GearDurabilityUpdate",
         "PlayerUpdate",
         "TalentUpdate",
+        "PvPTalentUpdate",
     }
 
     --save build the table to avoid lose registered events on older versions
@@ -483,6 +486,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         ["playerCast"] = {},
         ["onEnterWorld"] = {},
         ["talentUpdate"] = {},
+        ["pvpTalentUpdate"] = {},
         ["onPlayerDeath"] = {},
         ["onPlayerRess"] = {},
     }
@@ -557,6 +561,10 @@ LIB_OPEN_RAID_CAN_LOAD = false
             openRaidLib.internalCallback.TriggerEvent("talentUpdate")
         end,
 
+        ["PLAYER_PVP_TALENT_UPDATE"] = function(...)
+            openRaidLib.internalCallback.TriggerEvent("pvpTalentUpdate")
+        end,
+
         ["PLAYER_DEAD"] = function(...)
             openRaidLib.UpdatePlayerAliveStatus()
         end,
@@ -607,6 +615,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
     --eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
     if (not isTimewalkWoW()) then
         eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
+        eventFrame:RegisterEvent("PLAYER_PVP_TALENT_UPDATE")
         eventFrame:RegisterEvent("ENCOUNTER_END")
     end
 
@@ -1577,7 +1586,7 @@ function openRaidLib.playerInfoManager.onEnterWorld()
 end
 openRaidLib.internalCallback.RegisterCallback("onEnterWorld", openRaidLib.playerInfoManager.onEnterWorld)
 
---talent update
+--talent update (when the player changes a talent and the lib needs to notify other players in the group)
 function openRaidLib.playerInfoManager.sendTalentUpdate()
     --talents
     local talentsToSend = {0, 0, 0, 0, 0, 0, 0}
@@ -1613,10 +1622,52 @@ function openRaidLib.playerInfoManager.OnReceiveTalentsUpdate(data, source)
         playerInfo.talents = talentsTableUnpacked
 
         --trigger public callback event
-        openRaidLib.publicCallback.TriggerCallback("TalentUpdate", source, playerInfo, openRaidLib.playerInfoManager.GetAllPlayersInfo())
+        openRaidLib.publicCallback.TriggerCallback("TalentUpdate", source, playerInfo.talents, playerInfo, openRaidLib.playerInfoManager.GetAllPlayersInfo())
     end
 end
 openRaidLib.commHandler.RegisterComm(CONST_COMM_PLAYERINFO_TALENTS_PREFIX, openRaidLib.playerInfoManager.OnReceiveTalentsUpdate)
+
+
+
+--pvp talent update (when the player changes a pvp talent and the lib needs to notify other players in the group)
+
+function openRaidLib.playerInfoManager.sendPvPTalentUpdate()
+    --talents
+    local pvpTalentsToSend = {0, 0, 0}
+    local talentList = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
+    for talentIndex, talentId in ipairs(talentList) do
+        local doesExists = GetPvpTalentInfoByID(talentId)
+        if (doesExists) then
+            pvpTalentsToSend[talentIndex] = talentId
+        end
+    end
+
+    local dataToSend = CONST_COMM_PLAYERINFO_PVPTALENTS_PREFIX .. ","
+    local pvpTalentsString = openRaidLib.PackTable(pvpTalentsToSend)
+    dataToSend = dataToSend .. pvpTalentsString
+
+    --send the data
+    openRaidLib.commHandler.SendCommData(dataToSend)
+    diagnosticComm("SendPvPTalentUpdateData| " .. dataToSend) --debug
+end
+
+function openRaidLib.playerInfoManager.schedulePvPTalentUpdate()
+    openRaidLib.Schedules.NewUniqueTimer(1 + math.random(0, 1), openRaidLib.playerInfoManager.sendPvPTalentUpdate, "playerInfoManager", "sendPvPTalent_Schedule")
+end
+openRaidLib.internalCallback.RegisterCallback("pvpTalentUpdate", openRaidLib.playerInfoManager.schedulePvPTalentUpdate)
+
+function openRaidLib.playerInfoManager.OnReceivePvPTalentsUpdate(data, source)
+    local pvpTalentsTableUnpacked = openRaidLib.UnpackTable(data, 1, false, false, 3)
+
+    local playerInfo = openRaidLib.playerInfoManager.GetPlayerInfo(source)
+    if (playerInfo) then
+        playerInfo.pvpTalents = pvpTalentsTableUnpacked
+
+        --trigger public callback event
+        openRaidLib.publicCallback.TriggerCallback("PvPTalentUpdate", source, playerInfo.pvpTalents, playerInfo, openRaidLib.playerInfoManager.GetAllPlayersInfo())
+    end
+end
+openRaidLib.commHandler.RegisterComm(CONST_COMM_PLAYERINFO_PVPTALENTS_PREFIX, openRaidLib.playerInfoManager.OnReceivePvPTalentsUpdate)
 
 
 
