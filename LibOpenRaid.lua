@@ -8,19 +8,22 @@ For different realm: is used the 'none' ambiguation with no realm normalizarion:
 Non normalizated player-realom names is used by the game on comm receive event as the 'sender' parameter
 It also is the result from GetUnitName(unitId, true) or Ambiguate(playerName, 'none')
 
+implemented recently:
++ pvp talents
+
 to be implemented:
-- pvp talents
 - raid lockouts normal-heroic-mythic
 - make GUID to be used when passing the player name
 - make "player" unit information always be available even not in a group
 - soulbind character (covenant choise) - probably not used in 10.0
 - keystone info
+- track interrupts
 --]=]
 
 
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 24
+local CONST_LIB_VERSION = 25
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -1406,13 +1409,14 @@ end)
                 covenantId = 0,
                 talents = {},
                 conduits = {},
+                pvpTalents = {},
             }
             openRaidLib.playerInfoManager.playerData[playerName] = playerInfo
         end
         return playerInfo
     end
 
-    function openRaidLib.playerInfoManager.AddPlayerInfo(playerName, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked)
+    function openRaidLib.playerInfoManager.AddPlayerInfo(playerName, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
         local playerInfo = openRaidLib.playerInfoManager.GetPlayerInfo(playerName, true)
 
         playerInfo.specId = specId
@@ -1420,6 +1424,7 @@ end)
         playerInfo.covenantId = covenantId
         playerInfo.talents = talentsTableUnpacked
         playerInfo.conduits = conduitsTableUnpacked
+        playerInfo.pvpTalents = pvpTalentsTableUnpacked
 
         openRaidLib.publicCallback.TriggerCallback("PlayerUpdate", playerName, openRaidLib.playerInfoManager.playerData[playerName], openRaidLib.playerInfoManager.GetAllPlayersInfo())
     end
@@ -1432,8 +1437,12 @@ end)
         local renown = tonumber(data[2])
         local covenantId = tonumber(data[3])
         local talentsSize = tonumber(data[4])
-        local conduitsTableIndex = tonumber((talentsSize + 1) + 3) + 1 -- +3 = specIndex renowIndex covenantIdIndex | talentSizeIndex + talentSize | +1
+
+        local conduitsTableIndex = tonumber((talentsSize + 1) + 3) + 1 -- +3 for spec, renown and covenant data | talentSizeIndex + talentSize | +1 for talents size
         local conduitsSize = data[conduitsTableIndex]
+
+        local pvpTalentsTableIndex = 3 + 3 + talentsSize + conduitsSize -- +3 for spec, renown and covenant data | +3 for talents, conduit and pvptalents index for size
+        local pvpTalentsSize = data[pvpTalentsTableIndex]
 
         --unpack the talents data as a ipairs table
         local talentsTableUnpacked = openRaidLib.UnpackTable(data, 4, false, false, talentsSize)
@@ -1441,8 +1450,11 @@ end)
         --unpack the conduits data as a ipairs table
         local conduitsTableUnpacked = openRaidLib.UnpackTable(data, conduitsTableIndex, false, false, conduitsSize)
 
+        --unpack the pvp talents data as a ipairs table
+        local pvpTalentsTableUnpacked = openRaidLib.UnpackTable(data, pvpTalentsTableIndex, false, false, pvpTalentsSize)
+
         --add to the list of players information and also trigger a public callback
-        openRaidLib.playerInfoManager.AddPlayerInfo(source, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked)
+        openRaidLib.playerInfoManager.AddPlayerInfo(source, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
     end
     openRaidLib.commHandler.RegisterComm(CONST_COMM_PLAYERINFO_PREFIX, openRaidLib.playerInfoManager.OnReceivePlayerFullInfo)
 
@@ -1455,6 +1467,7 @@ function openRaidLib.playerInfoManager.SendAllPlayerInfo()
     dataToSend = dataToSend .. playerInfo[3] .. "," --covenantId
     dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[4]) .. "," --talents
     dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[5]) .. "," --conduits
+    dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[6]) .. "," --pvp talents
 
     --send the data
     openRaidLib.commHandler.SendCommData(dataToSend)
@@ -1545,34 +1558,18 @@ function openRaidLib.playerInfoManager.GetPlayerFullInfo()
 
     playerInfo[5] = conduits
 
-    return playerInfo
+    --> pvp talents
+        local pvpTalents = {0, 0, 0}
+        local talentList = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
+        for talentIndex, talentId in ipairs(talentList) do
+            local doesExists = GetPvpTalentInfoByID(talentId)
+            if (doesExists) then
+                pvpTalents[talentIndex] = talentId
+            end
+        end
+        playerInfo[6] = pvpTalents    
 
-    --/run Details:Dump (Enum.SoulbindNodeState)
-    --/run Details:Dump ( nodes )
-    
-    --[=[
-        ["Selectable"] = 2
-        ["Unavailable"] = 0
-        ["Unselected"] = 1
-        ["Selected"] = 3
-    --]=]
-            
-    --[=[
-        [1] = table {
-        ["conduitID"] = 195
-        ["conduitType"] = 1
-        ["state"] = 3
-        ["icon"] = 463891
-        ["parentNodeIDs"] = table {
-            ["1"] = 1316
-        }
-        ["column"] = 0
-        ["ID"] = 1305
-        ["conduitRank"] = 4
-        ["row"] = 1
-        ["spellID"] = 0
-        }
-    --]=]
+    return playerInfo
 end
 
 function openRaidLib.playerInfoManager.onEnterWorld()
