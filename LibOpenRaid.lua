@@ -23,7 +23,7 @@ to be implemented:
 
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 26
+local CONST_LIB_VERSION = 27
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -1491,6 +1491,13 @@ end)
 
         --unpack the conduits data as a ipairs table
         local conduitsTableUnpacked = openRaidLib.UnpackTable(data, conduitsTableIndex, false, false, conduitsSize)
+
+        --back compatibility with versions without pvp talents
+        if (type(data[pvpTalentsTableIndex]) == "string" or not data[pvpTalentsTableIndex]) then
+            --add a dummy table as pvp talents
+            openRaidLib.playerInfoManager.AddPlayerInfo(source, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, {0, 0, 0})
+            return
+        end
 
         --unpack the pvp talents data as a ipairs table
         local pvpTalentsTableUnpacked = openRaidLib.UnpackTable(data, pvpTalentsTableIndex, false, false, pvpTalentsSize)
