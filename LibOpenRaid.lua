@@ -10,11 +10,11 @@ It also is the result from GetUnitName(unitId, true) or Ambiguate(playerName, 'n
 
 implemented recently:
 + pvp talents
++ make "player" unit information always be available even not in a group
 
 to be implemented:
 - raid lockouts normal-heroic-mythic
 - make GUID to be used when passing the player name
-- make "player" unit information always be available even not in a group
 - soulbind character (covenant choise) - probably not used in 10.0
 - keystone info
 - track interrupts
@@ -23,7 +23,7 @@ to be implemented:
 
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 25
+local CONST_LIB_VERSION = 26
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -240,7 +240,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
             --don't receive comms from the player it self
             local playerName = UnitName("player")
             if (playerName == sender) then
-                --return --commented for debug
+                return
             end
             
             local data = text
@@ -657,6 +657,34 @@ LIB_OPEN_RAID_CAN_LOAD = false
         end
     end
 
+    --update player data, even if not in group
+    openRaidLib.mainControl.UpdatePlayerData = function()
+        local unitName = UnitName("player")
+        --> player data
+            local playerFullInfo = openRaidLib.playerInfoManager.GetPlayerFullInfo()
+            local playerTable = openRaidLib.playerInfoManager.GetPlayerInfo(unitName, true)
+            openRaidLib.playerInfoManager.SetPlayerInfo(playerTable, unpack(playerFullInfo))
+
+        --> cooldowns
+            local playerCooldownList = openRaidLib.cooldownManager.GetPlayerCooldownList() --received an already formated table to ship to comm
+            tinsert(playerCooldownList, 1, #playerCooldownList) --add the amount of indexes to pass the table to be unpacked
+            local unpackedTable = openRaidLib.UnpackTable(playerCooldownList, 1, true, true, 5)
+            openRaidLib.cooldownManager.AddUnitCooldownsList(unitName, unpackedTable, true)
+
+        --> gear info
+            local playerGearInfo = openRaidLib.gearManager.GetPlayerGearInfo()
+            openRaidLib.gearManager.AddUnitGearList(unitName, unpack(playerGearInfo))
+    end
+
+    --this function runs on all Player Entering World, it is delayed due to covenant data many times aren't available after a cold login
+    function openRaidLib.mainControl.scheduleUpdatePlayerData()
+        openRaidLib.Schedules.NewUniqueTimer(1.0, openRaidLib.mainControl.UpdatePlayerData, "mainControl", "updatePlayerData_Schedule")
+    end
+
+    function openRaidLib.UpdatePlayer()
+        return openRaidLib.mainControl.UpdatePlayerData()
+    end
+
     openRaidLib.mainControl.OnEnterGroup = function()
         --the player entered in a group
         --schedule to send data
@@ -699,6 +727,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
     end
 
     openRaidLib.internalCallback.RegisterCallback("onEnterWorld", openRaidLib.mainControl.onEnterWorld)
+    openRaidLib.internalCallback.RegisterCallback("onEnterWorld", openRaidLib.mainControl.scheduleUpdatePlayerData)
     openRaidLib.internalCallback.RegisterCallback("onEnterGroup", openRaidLib.mainControl.OnEnterGroup)
     openRaidLib.internalCallback.RegisterCallback("onLeaveGroup", openRaidLib.mainControl.OnLeftGroup)
     openRaidLib.internalCallback.RegisterCallback("onPlayerDeath", openRaidLib.mainControl.OnPlayerDeath)
@@ -936,7 +965,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
     --adds a list of cooldowns for another player in the group
     --this is only called from the received cooldown list from comm
-    function openRaidLib.cooldownManager.AddUnitCooldownsList(unitName, cooldownsTable)
+    function openRaidLib.cooldownManager.AddUnitCooldownsList(unitName, cooldownsTable, noCallback)
         local unitCooldownTable = cooldownGetUnitTable(unitName, true)
         openRaidLib.TCopy(unitCooldownTable, cooldownsTable)
 
@@ -947,7 +976,9 @@ LIB_OPEN_RAID_CAN_LOAD = false
         end
 
         --trigger a public callback
-        openRaidLib.publicCallback.TriggerCallback("CooldownListUpdate", unitName, unitCooldownTable, openRaidLib.cooldownManager.playerData)
+        if (not noCallback) then
+            openRaidLib.publicCallback.TriggerCallback("CooldownListUpdate", unitName, unitCooldownTable, openRaidLib.cooldownManager.playerData)
+        end
     end
 
     --check if a player cooldown is ready or if is in cooldown
@@ -1330,14 +1361,11 @@ end)
         playerGearInfo[#playerGearInfo+1] = slotsWithoutEnchant --[4]
         playerGearInfo[#playerGearInfo+1] = slotsWithoutGems    --[5]
 
-        --update the player table
-        openRaidLib.gearManager.AddUnitGearInfoList(UnitName("player"), itemLevel, gearDurability, weaponEnchant, slotsWithoutEnchant, slotsWithoutGems)
-
         return playerGearInfo
     end
 
     --when received the gear update from another player, store it and trigger a callback
-    function openRaidLib.gearManager.AddUnitGearInfoList(playerName, itemLevel, durability, weaponEnchant, noEnchantTable, noGemsTable)
+    function openRaidLib.gearManager.AddUnitGearList(playerName, itemLevel, durability, weaponEnchant, noEnchantTable, noGemsTable)
         local playerGearInfo = openRaidLib.gearManager.GetPlayerGear(playerName, true)
 
         playerGearInfo.ilevel = itemLevel
@@ -1369,20 +1397,23 @@ end)
         local noGemsTableUnpacked = openRaidLib.UnpackTable(data, noGemsTableIndex, false, false, noGemsTableSize)
 
         --add to the list of gear information
-        openRaidLib.gearManager.AddUnitGearInfoList(source, itemLevel, durability, weaponEnchant, noEnchantTableUnpacked, noGemsTableUnpacked)
+        openRaidLib.gearManager.AddUnitGearList(source, itemLevel, durability, weaponEnchant, noEnchantTableUnpacked, noGemsTableUnpacked)
     end
     openRaidLib.commHandler.RegisterComm(CONST_COMM_GEARINFO_FULL_PREFIX, openRaidLib.gearManager.OnReceiveGearFullInfo)
 
     function openRaidLib.gearManager.SendAllGearInfo()
-        --get gear information, gear info has 4 indexes:
+        --get gear information, gear info has 5 indexes:
         --[1] int item level
         --[2] int durability
         --[3] int weapon enchant
-        --[3] table with integers of equipSlot without enchant
-        --[4] table with integers of equipSlot which has a gem slot but the slot is empty            
+        --[4] table with integers of equipSlot without enchant
+        --[5] table with integers of equipSlot which has a gem slot but the slot is empty            
 
         local dataToSend = CONST_COMM_GEARINFO_FULL_PREFIX .. ","
         local playerGearInfo = openRaidLib.gearManager.GetPlayerGearInfo()
+
+        --update the player table
+        openRaidLib.gearManager.AddUnitGearList(UnitName("player"), unpack(playerGearInfo))
 
         dataToSend = dataToSend .. playerGearInfo[1] .. "," --item level
         dataToSend = dataToSend .. playerGearInfo[2] .. "," --durability
@@ -1425,16 +1456,18 @@ end)
         return playerInfo
     end
 
-    function openRaidLib.playerInfoManager.AddPlayerInfo(playerName, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
-        local playerInfo = openRaidLib.playerInfoManager.GetPlayerInfo(playerName, true)
-
+    function openRaidLib.playerInfoManager.SetPlayerInfo(playerInfo, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
         playerInfo.specId = specId
         playerInfo.renown = renown
         playerInfo.covenantId = covenantId
         playerInfo.talents = talentsTableUnpacked
         playerInfo.conduits = conduitsTableUnpacked
         playerInfo.pvpTalents = pvpTalentsTableUnpacked
+    end
 
+    function openRaidLib.playerInfoManager.AddPlayerInfo(playerName, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
+        local playerInfo = openRaidLib.playerInfoManager.GetPlayerInfo(playerName, true)
+        openRaidLib.playerInfoManager.SetPlayerInfo(playerInfo, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
         openRaidLib.publicCallback.TriggerCallback("PlayerUpdate", playerName, openRaidLib.playerInfoManager.playerData[playerName], openRaidLib.playerInfoManager.GetAllPlayersInfo())
     end
 
