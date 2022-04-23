@@ -27,12 +27,13 @@ TODO:
     - track interrupts (interrupt list is done, need to tracker the use of the spell and share it)
     - raid lockouts normal-heroic-mythic
     - soulbind character (covenant choise) - probably not used in 10.0
+    - (bug) after a /reload, it is not starting new tickers for spells under cooldown
 --]=]
 
 
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 28
+local CONST_LIB_VERSION = 29
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -69,8 +70,8 @@ LIB_OPEN_RAID_CAN_LOAD = false
     local CONST_TWO_SECONDS = 2.0
     local CONST_THREE_SECONDS = 3.0
 
-    local CONST_COOLDOWN_CHECK_INTERVAL = CONST_THREE_SECONDS
-    local CONST_COOLDOWN_TIMELEFT_HAS_CHANGED = CONST_THREE_SECONDS
+    local CONST_COOLDOWN_CHECK_INTERVAL = CONST_TWO_SECONDS
+    local CONST_COOLDOWN_TIMELEFT_HAS_CHANGED = CONST_TWO_SECONDS
 
     local CONST_COOLDOWN_INDEX_TIMELEFT = 1
     local CONST_COOLDOWN_INDEX_CHARGES = 2
@@ -818,7 +819,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         openRaidLib.publicCallback.TriggerCallback("UnitInfoUpdate", openRaidLib.GetUnitID(unitName), openRaidLib.UnitInfoManager.UnitData[unitName], openRaidLib.UnitInfoManager.GetAllUnitsInfo())
     end
 
-    --triggered when the lib receives a gear information from another player in the raid
+    --triggered when the lib receives a unit information from another player in the raid
     --@data: table received from comm
     --@unitName: player name
     function openRaidLib.UnitInfoManager.OnReceiveUnitFullInfo(data, unitName)
@@ -1247,7 +1248,7 @@ local cooldownTimeLeftCheck_Ticker = function(tickerObject)
         tickerObject:Cancel()
         updateLocally = true
     else
-        --check if the time left has changed
+        --check if the time left has changed, this check if the cooldown got its time reduced and if the cooldown time has been slow down by modRate
         if (not openRaidLib.isNearlyEqual(tickerObject.cooldownTimeLeft, timeLeft, CONST_COOLDOWN_TIMELEFT_HAS_CHANGED)) then
             --there's a deviation, send a comm to communicate the change in the time left
             openRaidLib.CooldownManager.SendPlayerCooldownUpdate(spellId, timeLeft, charges, startTimeOffset, duration)
