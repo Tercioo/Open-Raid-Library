@@ -78,6 +78,8 @@ elseif (gameLanguage == "zhTW") then
 	L["STRING_CRITICAL_ONLY"]  = "致命"
 end
 
+LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID = 180653
+
 LIB_OPEN_RAID_BLOODLUST = {
 	[2825] = true, --bloodlust
 	[32182] = true, --heroism
@@ -333,7 +335,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 		--affliction
 		[265] = {
 			[205180] = 1, --Summon Darkglare
-			[342601] = 1, --Ritual of Doom
+			--[342601] = 1, --Ritual of Doom
 			[113860] = 1, --Dark Soul: Misery (talent)
 			[104773] = 2, --Unending Resolve
 			[108416] = 2, --Dark Pact (talent)
@@ -344,7 +346,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 		--demonology
 		[266] = {
 			[265187] = 1, --Summon Demonic Tyrant
-			[342601] = 1, --Ritual of Doom
+			--[342601] = 1, --Ritual of Doom
 			[267171] = 1, --Demonic Strength (talent)
 			[111898] = 1, --Grimoire: Felguard (talent)
 			[267217] = 1, --Nether Portal (talent)
@@ -359,7 +361,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 		--destruction
 		[267] = {
 			[1122] = 1, --Summon Infernal
-			[342601] = 1, --Ritual of Doom
+			--[342601] = 1, --Ritual of Doom
 			[113858] = 1, --Dark Soul: Instability (talent)
 			[104773] = 2, --Unending Resolve
 			[108416] = 2, --Dark Pact (talent)
@@ -456,7 +458,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 	--> DEMON HUNTER
 		--havoc
 		[577] = {
-			[200166] = 1, --Metamorphosis
+			[191427] = 1, --Metamorphosis
 			[198589] = 2, --Blur
 			[196555] = 2, --Netherwalk (talent)
 			[196718] = 4, --Darkness
@@ -544,7 +546,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 			[22812] = 2, --Barkskin
 			[61336] = 2, --Survival Instincts
 			[108238] = 2, --Renewal (talent)
-			[77764] = 4, --Stampeding Roar
+			[77761] = 4, --Stampeding Roar
 			[132469] = 5, --Typhoon
 			[319454] = 5, --Heart of the Wild (talent)
 			[106839] = 6, --Skull Bash (interrupt)
@@ -595,7 +597,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 		},
 		--marksmanship
 		[254] = {
-			[193526] = 1, --Trueshot
+			[288613] = 1, --Trueshot
 			[186265] = 2, --Aspect of the Turtle
 			[199483] = 2, --Camouflage (talent)
 			[109304] = 2, --Exhilaration
@@ -685,7 +687,7 @@ LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {
 		--restoration
 		[264] = {
 			[108271] = 2, --Astral Shift
-			[114052] = 2, --Ascendance (talent)
+			[114052] = 4, --Ascendance (talent)
 			[98008] = 4, --Spirit Link Totem
 			[108280] = 4, --Healing Tide Totem
 			[16191] = 4, --Mana Tide Totem
@@ -758,7 +760,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 
 	--warlock
 	[205180] = {cooldown = 180, duration = 20, talent = false, charges = 1, class = "WARLOCK", type = 1}, --Summon Darkglare
-	[342601] = {cooldown = 3600, duration = false, talent = false, charges = 1, class = "WARLOCK", type = 1}, --Ritual of Doom
+	--[342601] = {cooldown = 3600, duration = false, talent = false, charges = 1, class = "WARLOCK", type = 1}, --Ritual of Doom
 	[113860] = {cooldown = 120, duration = 20, talent = 19293, charges = 1, class = "WARLOCK", type = 1}, --Dark Soul: Misery (talent)
 	[104773] = {cooldown = 180, duration = 8, talent = false, charges = 1, class = "WARLOCK", type = 2}, --Unending Resolve
 	[108416] = {cooldown = 60, duration = 20, talent = 19286, charges = 1, class = "WARLOCK", type = 2}, --Dark Pact (talent)
@@ -780,7 +782,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[51533] = {cooldown = 120, duration = 15, talent = false, charges = 1, class = "SHAMAN", type = 1}, --Feral Spirit
 	[114050] = {cooldown = 180, duration = 15, talent = 21675, charges = 1, class = "SHAMAN", type = 1}, --Ascendance (talent)
 	[114051] = {cooldown = 180, duration = 15, talent = 21972, charges = 1, class = "SHAMAN", type = 1}, --Ascendance (talent)
-	[114052] = {cooldown = 180, duration = 15, talent = 22359, charges = 1, class = "SHAMAN", type = 2}, --Ascendance (talent)
+	[114052] = {cooldown = 180, duration = 15, talent = 22359, charges = 1, class = "SHAMAN", type = 4}, --Ascendance (talent)
 	[98008] = {cooldown = 180, duration = 6, talent = false, charges = 1, class = "SHAMAN", type = 4}, --Spirit Link Totem
 	[108280] = {cooldown = 180, duration = 10, talent = false, charges = 1, class = "SHAMAN", type = 4}, --Healing Tide Totem
 	[207399] = {cooldown = 240, duration = 30, talent = 22323, charges = 1, class = "SHAMAN", type = 4}, --Ancestral Protection Totem (talent)
@@ -814,7 +816,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[193530] = {cooldown = 120, duration = 20, talent = false, charges = 1, class = "HUNTER", type = 1}, --Aspect of the Wild
 	[19574] = {cooldown = 90, duration = 12, talent = false, charges = 1, class = "HUNTER", type = 1}, --Bestial Wrath
 	[201430] = {cooldown = 180, duration = 12, talent = 23044, charges = 1, class = "HUNTER", type = 1}, --Stampede (talent)
-	[193526] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "HUNTER", type = 1}, --Trueshot
+	[288613] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "HUNTER", type = 1}, --Trueshot
 	[199483] = {cooldown = 60, duration = 60, talent = 23100, charges = 1, class = "HUNTER", type = 2}, --Camouflage (talent)
 	[281195] = {cooldown = 180, duration = 6,  talent = false, charges = 1, class = "HUNTER", type = 2}, --Survival of the Fittest
 	[266779] = {cooldown = 120, duration = 20, talent = false, charges = 1, class = "HUNTER", type = 1}, --Coordinated Assault
@@ -836,7 +838,6 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[106951] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "DRUID", type = 1}, --Berserk
 	[102543] = {cooldown = 30, duration = 180, talent = 21704, charges = 1, class = "DRUID", type = 1}, --Incarnation: King of the Jungle (talent)
 	[61336] = {cooldown = 120, duration = 6, talent = false, charges = 2, class = "DRUID", type = 2}, --Survival Instincts (2min feral 4min guardian, same spellid)
-	[77764] = {cooldown = 120, duration = 8, talent = false, charges = 1, class = "DRUID", type = 4}, --Stampeding Roar (utility)
 	[102558] = {cooldown = 180, duration = 30, talent = 22388, charges = 1, class = "DRUID", type = 2}, --Incarnation: Guardian of Ursoc (talent)
 	[33891] = {cooldown = 180, duration = 30, talent = 22421, charges = 1, class = "DRUID", type = 2}, --Incarnation: Tree of Life (talent)
 	[102342] = {cooldown = 60, duration = 12, talent = false, charges = 1, class = "DRUID", type = 3}, --Ironbark
@@ -869,7 +870,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[212552]  = {cooldown = 60, duration = 4, talent = 19228, charges = 1, class = "DEATHKNIGHT", type = 5}, --Wraith walk (talent)
 
 	--demon hunter
-	[200166] = {cooldown = 240, duration = 30, talent = false, charges = 1, class = "DEMONHUNTER", type = 1}, --Metamorphosis
+	[191427] = {cooldown = 240, duration = 30, talent = false, charges = 1, class = "DEMONHUNTER", type = 1}, --Metamorphosis
 	[198589] = {cooldown = 60, duration = 10, talent = false, charges = 1, class = "DEMONHUNTER", type = 2}, --Blur
 	[196555] = {cooldown = 120, duration = 5, talent = 21865, charges = 1, class = "DEMONHUNTER", type = 2}, --Netherwalk (talent)
 	[187827] = {cooldown = 180, duration = 15, talent = false, charges = 1, class = "DEMONHUNTER", type = 2}, --Metamorphosis
@@ -1017,3 +1018,36 @@ LIB_OPEN_RAID_SPELL_INTERRUPT = {
 	[19647] = LIB_OPEN_RAID_COOLDOWNS_INFO[19647], --Spell Lock (pet felhunter ability)
 	[89766] = LIB_OPEN_RAID_COOLDOWNS_INFO[89766], --Axe Toss (pet felguard ability)
 }
+
+LIB_OPEN_RAID_SPELL_DEFAULT_IDS = {
+	--stampeding roar (druid)
+	[106898] = 77761,
+	[77764] = 77761, --"Uncategorized" on wowhead, need to test if still exists
+	--spell lock (warlock pet)
+	[119910] = 19647, --"Uncategorized" on wowhead
+	[132409] = 19647, --"Uncategorized" on wowhead
+	--[115781] = 19647, --optical blast used by old talent observer, still a thing?
+	--[251523] = 19647, --wowhead list this spell as sibling spell
+	--[251922] = 19647, --wowhead list this spell as sibling spell
+	--axe toss (warlock pet)
+	[119914] = 89766, --"Uncategorized" on wowhead
+	[347008] = 89766, --"Uncategorized" on wowhead
+	--hex (shaman)
+	[210873] = 51514, --Compy
+	[211004] = 51514, --Spider
+	[211010] = 51514, --Snake
+	[211015] = 51514, --Cockroach
+	[269352] = 51514, --Skeletal Hatchling
+	[277778] = 51514, --Zandalari Tendonripper
+	[277784] = 51514, --Wicker Mongrel
+	[309328] = 51514, --Living Honey
+	--typhoon
+	--[61391] = 132469,
+	--metamorphosis
+	[191427] = 200166,
+	--187827 vengeance need to test these spellIds
+	--191427 havoc
+
+}
+
+--need to add mass dispell (32375)
