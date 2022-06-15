@@ -195,6 +195,7 @@ LIB_OPEN_RAID_GEM_IDS = {
     [173129] = true, --Versatile Jewel Cluster (blue, versatility)
     [173127] = true, --Deadly Jewel Cluster (blue, crit)
     [173128] = true, --Quick Jewel Cluster (blue, haste)
+    [168636] = true, --Leviathan's Eye of Strength (purple, strength)
 }
 
 --/dump GetWeaponEnchantInfo()
