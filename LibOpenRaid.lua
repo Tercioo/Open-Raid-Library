@@ -50,7 +50,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not IsDragonflight()) then
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 47
+local CONST_LIB_VERSION = 48
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -1960,6 +1960,10 @@ function openRaidLib.CooldownManager.RequestCooldownInfo(spellId)
     local dataToSend = CONST_COMM_COOLDOWNREQUEST_PREFIX .. "," .. spellId
     openRaidLib.commHandler.SendCommData(dataToSend)
     diagnosticComm("RequestCooldownInfo| " .. dataToSend) --debug
+end
+
+function openRaidLib.RequestCooldownInfo(spellId) --api alias
+    return openRaidLib.CooldownManager.RequestCooldownInfo(spellId)
 end
 
 function openRaidLib.CooldownManager.OnReceiveRequestForCooldownInfoUpdate(data, unitName)

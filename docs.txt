@@ -53,10 +53,10 @@ local isReady, normalizedPercent, timeLeft, charges, minValue, maxValue, current
 --to remove the filter, call it with an empty table
 @filterName: any string containing alphanumeric characters
 @spells: a table containing spellIds {spellId, spellId, spellId, ...}
-openRaidLib.AddFilter(filterName, spells)
+openRaidLib.AddCooldownFilter(filterName, spells)
 
 --request information about a spell for all units in the raid, units which has this cooldown will report back with a "CooldownUpdate" event
-openRaidLib.CooldownManager.RequestCooldownInfo(spellId)
+openRaidLib.RequestCooldownInfo(spellId)
 
 EQUIPMENT:
 local allPlayersGear = openRaidLib.GetAllUnitsGear()

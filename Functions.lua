@@ -190,7 +190,7 @@ local getCooldownsForFilter = function(unitName, allCooldowns, unitDataFilteredC
     return filterTable
 end
 
-function openRaidLib.AddFilter(filterName, spells)
+function openRaidLib.AddCooldownFilter(filterName, spells)
     --integrity check
     if (type(filterName) ~= "string") then
         openRaidLib.DiagnosticError("Usage: openRaidLib.AddFilter(string: filterName, table: spells)", debugstack())
