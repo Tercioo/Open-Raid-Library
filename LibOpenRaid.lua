@@ -40,14 +40,17 @@ BUGS:
     
 --]=]
 
+local IsDragonflight = function()
+	return select(4, GetBuildInfo()) >= 100000
+end
 
 --don't load if it's not retail, emergencial patch due to classic and bcc stuff not transposed yet
-if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE) then
+if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not IsDragonflight()) then
     return
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 43
+local CONST_LIB_VERSION = 46
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -130,8 +133,8 @@ LIB_OPEN_RAID_CAN_LOAD = false
     end
 
     local isTimewalkWoW = function()
-        local gameVersion = GetBuildInfo()
-        if (gameVersion:match("%d") == "1" or gameVersion:match("%d") == "2") then
+        local _, _, _, buildInfo = GetBuildInfo()
+        if (buildInfo < 40000) then
             return true
         end
     end
@@ -140,7 +143,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         for i = 1, select("#", ...) do
             local clientVersion = select(i, ...)
 
-            if (clientVersion == "retail" and WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then --retail
+            if (clientVersion == "retail" and (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or IsDragonflight())) then --retail
                 return true
 
             elseif (clientVersion == "classic_era" and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) then --classic era (vanila)
@@ -352,7 +355,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         local currentSchedule = registeredUniqueTimers[namespace] and registeredUniqueTimers[namespace][scheduleName]
 
         if (currentSchedule) then
-            if (not currentSchedule._cancelled) then
+            if (not currentSchedule:IsCancelled()) then
                 currentSchedule:Cancel()
             end
             registeredUniqueTimers[namespace][scheduleName] = nil
@@ -364,7 +367,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
         local registeredUniqueTimers = openRaidLib.Schedules.registeredUniqueTimers
         for namespace, schedulesTable in pairs(registeredUniqueTimers) do
             for scheduleName, timerObject in pairs (schedulesTable) do
-                if (timerObject and not timerObject._cancelled) then
+                if (timerObject and not timerObject:IsCancelled()) then
                     timerObject:Cancel()
                 end
             end
@@ -1436,7 +1439,7 @@ local cooldownStartTicker = function(spellId, cooldownTimeLeft)
         end
 
         --cancel the existing ticker
-        if (not existingTicker._cancelled) then
+        if (not existingTicker:IsCancelled()) then
             existingTicker:Cancel()
         end
     end
