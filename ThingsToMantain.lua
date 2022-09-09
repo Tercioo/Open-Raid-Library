@@ -290,6 +290,10 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[5246]  = 	{cooldown = 90, 	duration = 8, 		specs = {71,72,73}, 	talent =false, charges = 1, class = "WARRIOR", type = 5}, --Intimidating Shout
 
 	--warlock
+	-- 265 - Affliction
+	-- 266 - Demonology
+	-- 267 - Destruction
+
 	[205180] = 	{cooldown = 180, 	duration = 20, 		specs = {265}, 			talent =false, charges = 1, class = "WARLOCK", type = 1}, --Summon Darkglare
 	--[342601] = {cooldown = 3600, 	duration = false, 	specs = {}, 	talent =false, charges = 1, class = "WARLOCK", type = 1}, --Ritual of Doom
 	[113860] = 	{cooldown = 120, 	duration = 20, 		specs = {265}, 			talent =19293, charges = 1, class = "WARLOCK", type = 1}, --Dark Soul: Misery (talent)
