@@ -487,7 +487,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[64044] = 	{cooldown = 45, 	duration = 4, 		specs = {258}, 			talent =21752, charges = 1, class = "PRIEST", type = 5}, --Psychic Horror
 	[205369] = 	{cooldown = 30, 	duration = 6, 		specs = {258}, 			talent =23375, charges = 1, class = "PRIEST", type = 5}, --Mind Bomb
 	[228260] = 	{cooldown = 90, 	duration = 15, 		specs = {258}, 			talent =false, charges = 1, class = "PRIEST", type = 1}, --Void Erruption
-	[73325] = 	{cooldown = 90, 	duration = false, 	specs = {256,257,258}, 	talent =false, charges = 1, class = "PRIEST", type = 1}, --Leap of Faith
+	[73325] = 	{cooldown = 90, 	duration = false, 	specs = {256,257,258}, 	talent =false, charges = 1, class = "PRIEST", type = 5}, --Leap of Faith
 
 	--rogue
 	-- 259 - Assasination
