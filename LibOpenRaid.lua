@@ -58,7 +58,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 55
+local CONST_LIB_VERSION = 56
 LIB_OPEN_RAID_CAN_LOAD = false
 
 --declae the library within the LibStub
@@ -2083,6 +2083,11 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
     --search the player backpack to find a mythic keystone
     --with the keystone object, it'll attempt to get the mythicPlusMapID to be used with C_ChallengeMode.GetMapUIInfo(mythicPlusMapID)
     --ATM we are obligated to do this due to C_MythicPlus.GetOwnedKeystoneMapID() return the same mapID for the two Tazavesh dungeons
+
+    local GetContainerNumSlots = isExpansion_Dragonflight() and C_Container.GetContainerNumSlots or GetContainerNumSlots;
+    local GetContainerItemID = isExpansion_Dragonflight() and C_Container.GetContainerItemID or GetContainerItemID;
+    local GetContainerItemLink = isExpansion_Dragonflight() and C_Container.GetContainerItemLink or GetContainerItemLink;
+
     local getMythicPlusMapID = function()
         for backpackId = 0, 4 do
             for slotId = 1, GetContainerNumSlots(backpackId) do
