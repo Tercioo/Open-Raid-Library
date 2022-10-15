@@ -43,10 +43,10 @@ TODO:
     - add into gear info how many tier set parts the player has
     - raid lockouts normal-heroic-mythic
     - soulbind character (covenant choise) - probably not used in 10.0
-    
+
 BUGS:
     - after a /reload, it is not starting new tickers for spells under cooldown
-    
+
 --]=]
 
 local versionString, revision, launchDate, gameVersion = GetBuildInfo()
@@ -63,8 +63,10 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 59
+local CONST_LIB_VERSION = 60
 LIB_OPEN_RAID_CAN_LOAD = false
+
+local unpack = table.unpack or _G.unpack
 
 --declae the library within the LibStub
     local libStub = _G.LibStub
@@ -174,7 +176,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
     end
 
 --------------------------------------------------------------------------------------------------------------------------------
---> ~comms
+--~comms
     openRaidLib.commHandler = {}
 
     function openRaidLib.commHandler.OnReceiveComm(self, event, prefix, text, channel, sender, target, zoneChannelID, localID, name, instanceID)
@@ -317,20 +319,20 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
 
 --------------------------------------------------------------------------------------------------------------------------------
---> ~schedule ~timers
+--~schedule ~timers
 
     openRaidLib.Schedules = {
         registeredUniqueTimers = {}
     }
-    
+
     --run a scheduled function with its payload
     local triggerScheduledTick = function(tickerObject)
         local payload = tickerObject.payload
         local callback = tickerObject.callback
-    
-        local result, errortext = pcall(callback, _G.unpack(payload))
+
+        local result, errortext = xpcall(callback, geterrorhandler(), unpack(payload))
         if (not result) then
-            sendChatMessage("openRaidLib: error on scheduler:", tickerObject.scheduleName, tickerObject.stack, errortext)
+            sendChatMessage("openRaidLib: error on scheduler:", tickerObject.scheduleName, tickerObject.stack)
         end
 
         if (tickerObject.isUnique) then
@@ -385,7 +387,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
     function openRaidLib.Schedules.CancelAllUniqueTimers()
         local registeredUniqueTimers = openRaidLib.Schedules.registeredUniqueTimers
         for namespace, schedulesTable in pairs(registeredUniqueTimers) do
-            for scheduleName, timerObject in pairs (schedulesTable) do
+            for scheduleName, timerObject in pairs(schedulesTable) do
                 if (timerObject and not timerObject:IsCancelled()) then
                     timerObject:Cancel()
                 end
@@ -396,7 +398,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
 
 --------------------------------------------------------------------------------------------------------------------------------
---> ~public ~callbacks
+--~public ~callbacks
 --these are the events where other addons can register and receive calls
     local allPublicCallbacks = {
         "CooldownListUpdate",
@@ -455,15 +457,14 @@ LIB_OPEN_RAID_CAN_LOAD = false
             local func = addonObject[functionName]
 
             if (func) then
-                --using pcall at the moment, should get a better caller in the future
-                local okay, errorMessage = pcall(func, ...)
+                local okay, errorMessage = xpcall(func, geterrorhandler(), ...)
                 if (not okay) then
-                    sendChatMessage("error:", errorMessage)
+                    sendChatMessage("error on callback for event:", event)
                 end
             end
         end
     end
-    
+
     function openRaidLib.RegisterCallback(addonObject, event, callbackMemberName)
         --check of integrity
         local integrity = checkRegisterDataIntegrity(addonObject, event, callbackMemberName)
@@ -494,7 +495,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
 
 --------------------------------------------------------------------------------------------------------------------------------
---> ~internal ~callbacks
+--~internal ~callbacks
 --internally, each module can register events through the internal callback to be notified when something happens in the game
 
     openRaidLib.internalCallback = {}
@@ -590,7 +591,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
                     openRaidLib.RequestAllData()
                 end
 
-                --> this part is under development
+                --this part is under development
                     if (Details) then
                         local detailsEventListener = Details:CreateEventListener()
 
@@ -733,7 +734,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
 
 --------------------------------------------------------------------------------------------------------------------------------
---> ~main ~control
+--~main ~control
 
     openRaidLib.mainControl = {
         playerAliveStatus = {},
@@ -765,15 +766,15 @@ LIB_OPEN_RAID_CAN_LOAD = false
     --called on every player_entering_world event
     openRaidLib.mainControl.UpdatePlayerData = function()
         local unitName = UnitName("player")
-        --> player data
+        --player data
             local playerFullInfo = openRaidLib.UnitInfoManager.GetPlayerFullInfo()
             openRaidLib.UnitInfoManager.AddUnitInfo(unitName, unpack(playerFullInfo))
 
-        --> gear info
+        --gear info
             local playerGearInfo = openRaidLib.GearManager.GetPlayerFullGearInfo()
             openRaidLib.GearManager.AddUnitGearList(unitName, unpack(playerGearInfo))
 
-        --> cooldowns
+        --cooldowns
             openRaidLib.CooldownManager.UpdatePlayerCooldownsLocally()
     end
 
@@ -871,7 +872,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
 
 --------------------------------------------------------------------------------------------------------------------------------
---> ~all, request data from all players
+--~all, request data from all players
 
     --send a request to all players in the group to send their data
     function openRaidLib.RequestAllData()
@@ -906,9 +907,9 @@ LIB_OPEN_RAID_CAN_LOAD = false
 
 
 --------------------------------------------------------------------------------------------------------------------------------
---> ~player general ~info ~unit
+--~player general ~info ~unit
 
-    --> API calls
+    --API calls
         --return a table containing all information of units
         --format: [playerName-realm] = {information}
         function openRaidLib.GetAllUnitsInfo()
@@ -921,7 +922,7 @@ LIB_OPEN_RAID_CAN_LOAD = false
             return openRaidLib.UnitInfoManager.GetUnitInfo(unitName)
         end
 
-    --> manager constructor
+    --manager constructor
         openRaidLib.UnitInfoManager = {
             --structure:
             --[playerName] = {ilevel = 100, durability = 100, weaponEnchant = 0, noGems = {}, noEnchants = {}}
@@ -1199,7 +1200,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
 
 
 --------------------------------------------------------------------------------------------------------------------------------
---> ~equipment
+--~equipment
     openRaidLib.GearManager = {
         --structure: [playerName] = {ilevel = 100, durability = 100, weaponEnchant = 0, noGems = {}, noEnchants = {}}
         UnitData = {},
@@ -1211,7 +1212,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         weaponEnchant = 0,
         noGems = {},
         noEnchants = {},
-    }    
+    }
 
     function openRaidLib.GetAllUnitsGear()
         return openRaidLib.GearManager.GetAllUnitsGear()
@@ -1376,7 +1377,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
         --[2] int durability
         --[3] int weapon enchant
         --[4] table with integers of equipSlot without enchant
-        --[5] table with integers of equipSlot which has a gem slot but the slot is empty            
+        --[5] table with integers of equipSlot which has a gem slot but the slot is empty
 
         local dataToSend = CONST_COMM_GEARINFO_FULL_PREFIX .. ","
         local playerGearInfo = openRaidLib.GearManager.GetPlayerFullGearInfo()
@@ -1397,7 +1398,7 @@ openRaidLib.internalCallback.RegisterCallback("onLeaveCombat", openRaidLib.UnitI
 
 
 --------------------------------------------------------------------------------------------------------------------------------
---> ~cooldowns
+--~cooldowns
 openRaidLib.CooldownManager = {
     UnitData = {}, --stores the list of cooldowns each player has sent
     UnitDataFilterCache = {}, --same as the table above but cooldowns are separated has offensive, defensive, etc. FilterCooldowns in functions.lua
@@ -1527,7 +1528,7 @@ function openRaidLib.CooldownManager.CooldownSpellUpdate(unitName, spellId, newT
     unitCooldownTable[spellId] = spellIdTable
 end
 
---> API Calls
+--API Calls
     --return a table with unit names as key and a table with unit cooldowns as the value
     --table format: [playerName] = {[spellId] = cooldownInfo}
     function openRaidLib.GetAllUnitsCooldown()
@@ -1641,7 +1642,7 @@ end
         return calculatePercent(timeOffset, duration, updateTime, charges)
     end
 
---> internals
+--internals
     function openRaidLib.CooldownManager.OnPlayerCast(event, spellId, isPlayerPet) --~cast
         --player casted a spell, check if the spell is registered as cooldown
         local playerSpec = openRaidLib.GetPlayerSpecId()
@@ -2005,10 +2006,10 @@ end
 openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaidLib.CooldownManager.OnReceiveRequestForCooldownInfoUpdate)
 
 --------------------------------------------------------------------------------------------------------------------------------
---> ~keystones
+--~keystones
     --public callback does not check if the keystone has changed from the previous callback
 
-    --> API calls
+    --API calls
         --return a table containing all information of units
         --format: [playerName-realm] = {information}
         function openRaidLib.GetAllKeystonesInfo()
@@ -2073,7 +2074,7 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
             return true
         end
 
-    --> manager constructor
+    --manager constructor
         openRaidLib.KeystoneInfoManager = {
             --structure:
             --[playerName] = {level = 2, mapID = 222}
@@ -2278,7 +2279,7 @@ end)
 
 
 --------------------------------------------------------------------------------------------------------------------------------
---> data
+--data
 
 --vintage cooldown tracker and interrupt tracker
 C_Timer.After(0.1, function()
