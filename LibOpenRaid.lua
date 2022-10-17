@@ -206,7 +206,7 @@ end
 --use debug cvar to find issues that occurred during the logoff process
 function openRaidLib.PrintTempCacheDebug()
     local debugMessage = C_CVar.GetCVar(CONST_CVAR_TEMPCACHE_DEBUG)
-    sendChatMessage("|cFFFF9922OpenRaidLib|r Temp CVar Result:", debugMessage)
+    sendChatMessage("|cFFFF9922OpenRaidLib|r Temp CVar Result:\n", debugMessage)
 end
 
 function tempCache.SaveDebugText()
