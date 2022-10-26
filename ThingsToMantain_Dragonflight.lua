@@ -572,7 +572,11 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[79140] = {cooldown = 120,	duration = 20,	specs = {259},				talent = false,	charges = 1,	class = "ROGUE",	type = 1}, --Vendetta
 }
 
+--this table store all cooldowns the player currently have available
+LIB_OPEN_RAID_PLAYERCOOLDOWNS = {}
+
 LIB_OPEN_RAID_COOLDOWNS_BY_SPEC = {};
+
 for spellID,spellData in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
 	for _,specID in ipairs(spellData.specs) do
 		LIB_OPEN_RAID_COOLDOWNS_BY_SPEC[specID] = LIB_OPEN_RAID_COOLDOWNS_BY_SPEC[specID] or {};
