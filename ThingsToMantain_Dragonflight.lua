@@ -287,6 +287,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[183752] = {class = "DEMONHUNTER", specs = {577, 581}, cooldown = 15, silence = 3, talent = false, cooldownWithTalent = false, cooldownTalentId = false, type = 6, charges = 1}, --Disrupt
 	[19647] = {class = "WARLOCK", specs = {265, 266, 267}, cooldown = 24, silence = 6, talent = false, cooldownWithTalent = false, cooldownTalentId = false, pet = 417, type = 6, charges = 1}, --Spell Lock (pet felhunter ability)
 	[89766] = {class = "WARLOCK", specs = {266}, cooldown = 30, silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false, pet = 17252, type = 6, charges = 1}, --Axe Toss (pet felguard ability)
+	[351338] = {class = "EVOKER", specs = {1467, 1468}, cooldown = 40,	silence = 4, talent = false, cooldownWithTalent = false, cooldownTalentId = false,	charges = 1, type = 6}, --Quell (Evoker)
 
 	--paladin
 	-- 65 - Holy
@@ -578,6 +579,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	--[365585] = {cooldown = 8,	duration = 0,		specs = {1467, 1468},			talent = false,	charges = 1,	class = "EVOKER",	type = 7}, --Expunge
 	--[360823] = {cooldown = 8,	duration = 0,		specs = {1468},					talent = false,	charges = 1,	class = "EVOKER",	type = 7}, --Naturalize
 	[357210] = {cooldown = 120,	duration = 0,	specs = {1467, 1468},			talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Deep Breath
+	[375087] = {cooldown = 120,	duration = 0,	specs = {1467},					talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Dragonrage
 	[359816] = {cooldown = 120,	duration = 15,	specs = {1468},					talent = false,	charges = 1,	class = "EVOKER",	type = 4}, --Dream Flight
 	[370960] = {cooldown = 180,	duration = 4.4,	specs = {1468},					talent = false,	charges = 1,	class = "EVOKER",	type = 2}, --Emerald Communion
 
@@ -592,25 +594,6 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[357170] = {cooldown = 60,	duration = 8,	specs = {1468},					talent = false,	charges = 1,	class = "EVOKER",	type = 3}, --Time Dilation
 	[374968] = {cooldown = 120,	duration = 10,	specs = {1467, 1468},			talent = false,	charges = 1,	class = "EVOKER",	type = 5}, --Time Spiral
 	[374227] = {cooldown = 120,	duration = 8,	specs = {1467, 1468},			talent = false,	charges = 1,	class = "EVOKER",	type = 4}, --Zephyr
-
-	--[=[
-	[364342] = {cooldown = 15 sec cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 5}, --Blessing of the Bronze
-	[355936] = {cooldown = 30 sec cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 4}, --Dream Breath
-	[357208] = {cooldown = 30 sec cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Fire Breath
-	[390386] = {cooldown = 5 min cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 5}, --Fury of the Aspects
-	[358267] = {cooldown = 35 sec cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 2}, --Hover
-	[351338] = {cooldown = 40 sec cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 6}, --Quell
-	[360806] = {cooldown = 15 sec cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 8}, --Sleep Walk
-	[370537] = {cooldown = 1.5 min cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 4}, --Stasis
-	[373861] = {cooldown = 5.3 sec cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 4}, --Temporal Anomaly
-	[370553] = {cooldown = 2 min cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Tip the Scales
-	[368432] = {cooldown = 9 sec cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Unravel
-	[360995] = {cooldown = 16 sec cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "EVOKER",	type = 3}, --Verdant Embrace
---]=]
-	--------------------------------------------
-
-
-
 }
 
 --this table store all cooldowns the player currently have available
