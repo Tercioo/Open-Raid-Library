@@ -14,8 +14,13 @@ Code Rules:
     - Internal callbacks are the internal communication of the library, e.g. when an event triggers it send to all modules that registered that event.
     - Public callbacks are callbacks registered by an external addon.
 
-Change Log:
-    - added openRaidLib.GetSpellFilters(spellId, defaultFilterOnly, customFiltersOnly) (see docs)
+Change Log (most recent on 2022 Nov 07):
+    - added:
+        * added openRaidLib.GetSpellFilters(spellId, defaultFilterOnly, customFiltersOnly) (see docs)
+    - passing a spellId of a non registered cooldown on LIB_OPEN_RAID_COOLDOWNS_INFO will trigger a diagnostic error if diagnostic errors are enabled.
+    - player cast doesn't check anymore for cooldowns in the player spec, now it check towards the cache LIB_OPEN_RAID_PLAYERCOOLDOWNS.
+        LIB_OPEN_RAID_PLAYERCOOLDOWNS is a cache built with cooldowns present in the player spellbook.
+
     - things to maintain now has 1 file per expansion
     - player conduits, covenant internally renamed to playerInfo1 and playerInfo2 to make the lib more future proof
     - player conduits tree is now Borrowed Talents Tree, for future proof
@@ -26,29 +31,14 @@ Change Log:
         * openRaidLib.GetFlaskTierFromAura(auraInfo)
         * openRaidLib.GetFoodInfoBySpellId(spellId)
         * openRaidLib.GetFoodTierFromAura(auraInfo)
-    - added dragonflight talents support
+        * added dragonflight talents support
+        * added openRaidLib.RequestCooldownInfo(spellId)
+        * added openRaidLib.AddCooldownFilter(filterName, spells)
     - ensure to register events after 'PLAYER_ENTERING_WORLD' has triggered
-    - added openRaidLib.RequestCooldownInfo(spellId)
-    - added openRaidLib.AddCooldownFilter(filterName, spells)
-    - if Ace Comm is installed, use it
-    - added "KeystoneWipe" callback
-    - finished keystone info, see docs
-    - added interrupts to cooldown tracker, new filter: "interrupt"
-    - after encounter_end cooldowns now check for cooldowns reset.
-    - each module now controls what to do with regen_enabled.
-    - filter cooldowns done.
-    - move portions of the code to other files to make this one smaller.
-    - major function and variables rename.
-    - implemented pvp talents.
-    - player information is always available even when not in a group.
-    - added cooldown check to se which cooldown has removed or added into the list.
-    - added two new callbacks: "CooldownAdded" and "CooldownRemoved", see documents.
 
 TODO:
-    - make talents changes also send only cooldowns added or changed
     - add into gear info how many tier set parts the player has
     - raid lockouts normal-heroic-mythic
-    - soulbind character (covenant choise) - probably not used in 10.0
 
 BUGS:
     - after a /reload, it is not starting new tickers for spells under cooldown
