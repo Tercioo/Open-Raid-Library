@@ -15,6 +15,7 @@ Code Rules:
     - Public callbacks are callbacks registered by an external addon.
 
 Change Log:
+    - added openRaidLib.GetSpellFilters(spellId, defaultFilterOnly, customFiltersOnly) (see docs)
     - things to maintain now has 1 file per expansion
     - player conduits, covenant internally renamed to playerInfo1 and playerInfo2 to make the lib more future proof
     - player conduits tree is now Borrowed Talents Tree, for future proof
@@ -68,7 +69,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 68
+local CONST_LIB_VERSION = 70
 LIB_OPEN_RAID_CAN_LOAD = false
 
 local unpack = table.unpack or _G.unpack
@@ -1774,6 +1775,10 @@ end
         return openRaidLib.CooldownManager.DoesSpellPassFilters(spellId, filter)
     end
 
+    function openRaidLib.GetSpellFilters(spellId, defaultFilterOnly, customFiltersOnly)
+        return openRaidLib.CooldownManager.GetSpellFilters(spellId, defaultFilterOnly, customFiltersOnly)
+    end
+
     --return values about the cooldown time
     --values returned: timeLeft, charges, timeOffset, duration, updateTime
     function openRaidLib.GetCooldownTimeFromUnitSpellID(unitId, spellId)
@@ -1858,9 +1863,11 @@ end
 --internals
     function openRaidLib.CooldownManager.OnPlayerCast(event, spellId, isPlayerPet) --~cast
         --player casted a spell, check if the spell is registered as cooldown
-        local playerSpec = openRaidLib.GetPlayerSpecId()
-        if (playerSpec) then
-            if (LIB_OPEN_RAID_COOLDOWNS_BY_SPEC[playerSpec] and LIB_OPEN_RAID_COOLDOWNS_BY_SPEC[playerSpec][spellId]) then
+        --local playerSpec = openRaidLib.GetPlayerSpecId() --should be deprecated with cooldowns from spellbook
+        --if (playerSpec) then
+            --if (LIB_OPEN_RAID_COOLDOWNS_BY_SPEC[playerSpec] and LIB_OPEN_RAID_COOLDOWNS_BY_SPEC[playerSpec][spellId]) then --kinda deprecated with the new spell from spellbook
+            --issue: pet spells isn't in this table yet, might mess with pet interrupts
+            if (LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellId]) then --check if the casted spell is a cooldown the player has available
                 local playerName = UnitName("player")
 
                 --get the cooldown time for this spell
@@ -1881,7 +1888,7 @@ end
                 --as there's just a few of them to monitor, there's no issue on creating one timer per spell
                 cooldownStartTicker(spellId, timeLeft)
             end
-        end
+        --end
     end
 
     --when the player is ressed while in a group, send the cooldown list
