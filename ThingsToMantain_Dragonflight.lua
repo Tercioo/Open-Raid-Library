@@ -269,6 +269,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	-- 4 raid defensive cooldown
 	-- 5 personal utility cooldown
 	-- 6 interrupt
+	-- 7 dispel
 	-- 8 crowd control
 
 	--interrupts
@@ -319,6 +320,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	--[343527] = {cooldown = 1 min cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "PALADIN",	type = 1}, --Execution Sentence
 	--[343721] = {cooldown = 1 min cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "PALADIN",	type = 1}, --Final Reckoning
 	--[391054] = {cooldown = 10 min cooldown,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "PALADIN",	type = 5}, --Intercession (battle ress)
+	[20066] = {cooldown = 15,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "PALADIN",	type = 8}, --Repentance
 
 	--warrior
 	-- 71 - Arms
@@ -342,6 +344,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[376079] = {cooldown = 90,	duration = 4,	specs = {},					talent = false,	charges = 1,	class = "WARRIOR",	type = 1}, --Spear of Bastion
 	[392966] = {cooldown = 90, 	duration = 20,	specs = {73},				talent = false,	charges = 1,	class = "WARRIOR",	type = 2}, --Spell Block
 	[384318] = {cooldown = 90,	duration = 0,	specs = {71, 72, 73},		talent = false,	charges = 1,	class = "WARRIOR",	type = 1}, --Thunderous Roar
+	[46968] = {cooldown = 40,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "WARRIOR",	type = 8}, --Shockwave
 
 	--warlock
 	-- 265 - Affliction
@@ -383,6 +386,10 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[192077] = {cooldown = 120,	duration = 15,	specs = {262, 263, 264},	talent = false,	charges = 1,	class = "SHAMAN",	type = 5}, --Wind Rush Totem
 	--[198838] = {cooldown = 60,	duration = 15,	specs = {264},			talent = false,	charges = 1,	class = "SHAMAN",	type = 4}, --Earthen Wall Totem
 	[51485] = {cooldown = 60,	duration = 20,	specs = {262, 263, 264},		talent = false,	charges = 1,	class = "SHAMAN",	type = 8}, --Earthgrab Totem
+	--[383017] = {cooldown = 30,	duration = 0,	specs = {},				talent = false,	charges = 1,	class = "SHAMAN",	type = 4}, --Stoneskin Totem
+	[51514] = {cooldown = 30,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "SHAMAN",	type = 8}, --Hex
+	[108968] = {cooldown = 5*60,	duration = 0,	specs = {},				talent = false,	charges = 1,	class = "PRIEST",	type = 3}, --Void Shift
+
 
 	--monk
 	-- 268 - Brewmaster
@@ -408,6 +415,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[115176] = {cooldown = 300,	duration = 8,	specs = {268},				talent = false,	charges = 1,	class = "MONK",	type = 2}, --Zen Meditation
 	[388686] = {cooldown = 120,	duration = 30,	specs = {268, 269, 270},	talent = false,	charges = 1,	class = "MONK",	type = 1}, --Summon White Tiger Statue
 	--[322109] = {cooldown = 180,	duration = 0,	specs = {268, 269, 270},	talent = false,	charges = 1,	class = "MONK",	type = 1}, --Touch of Death
+	[116841] = {cooldown = 30,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "MONK",	type = 5}, --Tiger's Lust
 
 
 	--hunter
@@ -429,6 +437,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[281195] = {cooldown = 180,	duration = 6,	specs = {253, 254, 255},	talent = false,	charges = 1,	class = "HUNTER",	type = 2}, --Survival of the Fittest
 	[288613] = {cooldown = 180,	duration = 15,	specs = {254},				talent = false,	charges = 1,	class = "HUNTER",	type = 1}, --Trueshot
 	[264735] = {cooldown = 180,	duration = 0,	specs = {253, 254, 255},	talent = false,	charges = 1,	class = "HUNTER",	type = 2}, --Survival of the Fittest
+	[187698] = {cooldown = 30,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "HUNTER",	type = 8}, --Tar Trap
 
 	--druid
 	-- 102 - Balance
@@ -458,6 +467,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[102793] = {cooldown = 60,	duration = 10,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 8}, --Ursol's Vortex
 	[124974] = {cooldown = 90,	duration = 0,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 3}, --Nature's Vigil
 	[106898] = {cooldown = 120,	duration = 8,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 5}, --Stampeding Roar
+	[5211] = {cooldown = 60,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "DRUID",	type = 8}, --Mighty Bash
 
 	--death knight
 	-- 252 - Unholy
@@ -484,7 +494,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[207289] = {cooldown = 78,	duration = 12,	specs = {252},				talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 1}, --Unholy Assault
 	[55233] = {cooldown = 90,	duration = 10,	specs = {250},				talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 2}, --Vampiric Blood
 	[212552] = {cooldown = 60,	duration = 4,	specs = {250, 251, 252},	talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 2}, --Wraith Walk
-
+	[49576] = {cooldown = 25,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 8}, --Death Grip
 
 	--demon hunter
 	-- 577 - Havoc
@@ -510,6 +520,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	-- 62 - Arcane
 	-- 63 - Fire
 	-- 64 - Frost
+	[365350] = {cooldown = 90,	duration = 15,	specs = {62},				talent = false,	charges = 1,	class = "MAGE",	type = 1}, --Arcane Surge
 	[12042] = {cooldown = 90,	duration = 10,	specs = {62},				talent = false,	charges = 1,	class = "MAGE",	type = 1}, --Arcane Power
 	[235313] = {cooldown = 25,	duration = 60,	specs = {63},				talent = false,	charges = 1,	class = "MAGE",	type = 5}, --Blazing Barrier
 	[235219] = {cooldown = 300,	duration = 0,	specs = {64},				talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Cold Snap
@@ -525,6 +536,7 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[235450] = {cooldown = 25,	duration = 60,	specs = {62},				talent = false,	charges = 1,	class = "MAGE",	type = 5}, --Prismatic Barrier
 	[205021] = {cooldown = 78,	duration = 5,	specs = {64},				talent = false,	charges = 1,	class = "MAGE",	type = 1}, --Ray of Frost
 	[113724] = {cooldown = 45,	duration = 10,	specs = {62, 63, 64},		talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Ring of Frost
+	[31661] = {cooldown = 45,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Dragon's Breath
 
 	--priest
 	-- 256 - Discipline
@@ -571,11 +583,14 @@ LIB_OPEN_RAID_COOLDOWNS_INFO = {
 	[114018] = {cooldown = 360,	duration = 15,	specs = {259, 260, 261},	talent = false,	charges = 1,	class = "ROGUE",	type = 5}, --Shroud of Concealment
 	[1856] = {cooldown = 120,	duration = 3,	specs = {259, 260, 261},	talent = false,	charges = 1,	class = "ROGUE",	type = 1}, --Vanish
 	[79140] = {cooldown = 120,	duration = 20,	specs = {259},				talent = false,	charges = 1,	class = "ROGUE",	type = 1}, --Vendetta
+	[1776] = {cooldown = 20,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "ROGUE",	type = 8}, --Gouge
+	[408] = {cooldown = 20,		duration = 0,	specs = {},			talent = false,	charges = 1,	class = "ROGUE",	type = 8}, --Kidney Shot
+	[1966] = {cooldown = 15,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "ROGUE",	type = 2}, --Feint
 
 	--evoker
 	-- 1467 - Devastation
 	-- 1468 - Preservation
-	--[374251] = {cooldown = 60,	duration = 0,	specs = {1467, 1468},			talent = false,	charges = 1,	class = "EVOKER",	type = 7}, --Cauterizing Flame
+	[374251] = {cooldown = 60,	duration = 0,	specs = {1467, 1468},			talent = false,	charges = 1,	class = "EVOKER",	type = 7}, --Cauterizing Flame
 	--[365585] = {cooldown = 8,	duration = 0,		specs = {1467, 1468},			talent = false,	charges = 1,	class = "EVOKER",	type = 7}, --Expunge
 	--[360823] = {cooldown = 8,	duration = 0,		specs = {1468},					talent = false,	charges = 1,	class = "EVOKER",	type = 7}, --Naturalize
 	[357210] = {cooldown = 120,	duration = 0,	specs = {1467, 1468},			talent = false,	charges = 1,	class = "EVOKER",	type = 1}, --Deep Breath

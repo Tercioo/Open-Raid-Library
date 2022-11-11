@@ -277,6 +277,11 @@ local getCooldownsForFilter = function(unitName, allCooldowns, unitDataFilteredC
     return filterTable
 end
 
+--API Call
+--@filterName: a string representing a name of the filter
+--@spells: an array of spellIds
+--important: a spell can be part of any amount of custom filters,
+--declaring a spell on a new filter does NOT remove it from other filters where it was previously added
 function openRaidLib.AddCooldownFilter(filterName, spells)
     --integrity check
     if (type(filterName) ~= "string") then
@@ -290,7 +295,7 @@ function openRaidLib.AddCooldownFilter(filterName, spells)
 
     local allCooldownsData = openRaidLib.CooldownManager.GetAllRegisteredCooldowns()
 
-    --iterate among the global cooldown table and erase the filterName from all spells
+    --iterate among the all cooldowns table and erase the filterName from all spells
     for spellId, cooldownData in pairs(allCooldownsData) do
         cooldownData[filterName] = nil
         removeSpellFromCustomFilterCache(spellId, filterName)
@@ -318,8 +323,9 @@ function openRaidLib.AddCooldownFilter(filterName, spells)
     return true
 end
 
---@allCooldowns: all cooldowns sent by an unit, {[spellId] = cooldownInfo}
---@filters: string with filters, "defensive-raid, "defensive-personal"
+--API Call
+--@allCooldowns: all cooldowns sent by a unit, map{[spellId] = cooldownInfo}
+--@filters: string with filter names: array{"defensive-raid, "defensive-personal"}
 function openRaidLib.FilterCooldowns(unitName, allCooldowns, filters)
     local allDataFiltered = openRaidLib.CooldownManager.UnitDataFilterCache --["unitName"] = {defensive-raid = {[spellId = cooldownInfo]}}
     local unitDataFilteredCache = allDataFiltered[unitName]
