@@ -544,9 +544,8 @@ function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
     --check if is a charge spell
     local cooldownInfo = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId]
     if (cooldownInfo) then
-        if (cooldownInfo.charges and cooldownInfo.charges > 1) then
-            local chargesAvailable, chargesTotal, start, duration = GetSpellCharges(spellId)
-
+        local chargesAvailable, chargesTotal, start, duration = GetSpellCharges(spellId)
+        if chargesAvailable then
             if (chargesAvailable == chargesTotal) then
                 return 0, chargesTotal, 0, 0 --all charges are ready to use
             else
@@ -555,7 +554,6 @@ function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
                 local startTimeOffset = start - GetTime()
                 return ceil(timeLeft), chargesAvailable, startTimeOffset, duration --time left, charges, startTime
             end
-
         else
             local start, duration = GetSpellCooldown(spellId)
             if (start == 0) then --cooldown is ready
