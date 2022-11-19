@@ -64,7 +64,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 75
+local CONST_LIB_VERSION = 76
 LIB_OPEN_RAID_CAN_LOAD = false
 
 local unpack = table.unpack or _G.unpack
@@ -121,7 +121,7 @@ local unpack = table.unpack or _G.unpack
     local CONST_SPECIALIZATION_VERSION_CLASSIC = 0
     local CONST_SPECIALIZATION_VERSION_MODERN = 1
 
-    local CONST_COOLDOWN_CHECK_INTERVAL = CONST_TWO_SECONDS
+    local CONST_COOLDOWN_CHECK_INTERVAL = CONST_ONE_SECOND
     local CONST_COOLDOWN_TIMELEFT_HAS_CHANGED = CONST_ONE_SECOND
 
     local CONST_COOLDOWN_INDEX_TIMELEFT = 1
