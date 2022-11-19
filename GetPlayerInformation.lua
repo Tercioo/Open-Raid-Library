@@ -430,7 +430,7 @@ local getSpellListAsHashTableFromSpellBook = function()
         if (spellId and LIB_OPEN_RAID_COOLDOWNS_INFO[spellId] and LIB_OPEN_RAID_COOLDOWNS_INFO[spellId].raceid == playerRaceId) then
             spellId = C_SpellBook.GetOverrideSpell(spellId)
             local spellName = GetSpellInfo(spellId)
-            local isPassive = IsPassiveSpell(entryOffset, "player")
+            local isPassive = IsPassiveSpell(spellId, "player")
             if (spellName and not isPassive) then
                 completeListOfSpells[spellId] = true
             end
@@ -449,7 +449,7 @@ local getSpellListAsHashTableFromSpellBook = function()
                     if (spellType == "SPELL") then
                         spellId = C_SpellBook.GetOverrideSpell(spellId)
                         local spellName = GetSpellInfo(spellId)
-                        local isPassive = IsPassiveSpell(entryOffset, "player")
+                        local isPassive = IsPassiveSpell(spellId, "player")
                         if (spellName and not isPassive) then
                             completeListOfSpells[spellId] = true
                         end
@@ -469,9 +469,23 @@ local getSpellListAsHashTableFromSpellBook = function()
             if (spellType == "SPELL") then
                 spellId = C_SpellBook.GetOverrideSpell(spellId)
                 local spellName = GetSpellInfo(spellId)
-                local isPassive = IsPassiveSpell(entryOffset, "player")
+                local isPassive = IsPassiveSpell(spellId, "player")
                 if (spellName and not isPassive) then
                     completeListOfSpells[spellId] = true
+                end
+            end
+        end
+    end
+
+    local numSpells, petToken = HasPetSpells()
+    if(numSpells) then
+        for i=1, numSpells do
+            local spellName, _, unmaskedSpellId = GetSpellBookItemName(i,"pet")
+            if(unmaskedSpellId)then
+                unmaskedSpellId = C_SpellBook.GetOverrideSpell(unmaskedSpellId)
+                local isPassive = IsPassiveSpell(unmaskedSpellId, "pet")
+                if (spellName and not isPassive) then
+                    completeListOfSpells[unmaskedSpellId] = true
                 end
             end
         end
