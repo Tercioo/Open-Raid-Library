@@ -519,13 +519,14 @@ do
 			[203651] = {cooldown = 60,	duration = 0,	specs = {105},				talent = false,	charges = 1,	class = "DRUID",	type = 3}, --Overgrowth
 			[20484] = {cooldown = 600,	duration = 0,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 5}, --Rebirth
 			[108238] = {cooldown = 90,	duration = 0,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 2}, --Renewal
-			[77761] = {cooldown = 120,	duration = 8,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 4}, --Stampeding Roar
 			[61336] = {cooldown = 120,	duration = 6,	specs = {103, 104},			talent = false,	charges = 1,	class = "DRUID",	type = 2}, --Survival Instincts
 			[740] = {cooldown = 180,	duration = 8,	specs = {105},				talent = false,	charges = 1,	class = "DRUID",	type = 4}, --Tranquility
 			[132469] = {cooldown = 30,	duration = 0,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 8}, --Typhoon
 			[102793] = {cooldown = 60,	duration = 10,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 8}, --Ursol's Vortex
 			[124974] = {cooldown = 90,	duration = 0,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 3}, --Nature's Vigil
+			[77761] = {cooldown = 120,	duration = 8,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 5}, --Stampeding Roar
 			[106898] = {cooldown = 120,	duration = 8,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 5}, --Stampeding Roar
+			[77764] = {cooldown = 120,	duration = 8,	specs = {102, 103, 104, 105},	talent = false,	charges = 1,	class = "DRUID",	type = 5}, --Stampeding Roar
 			[5211] = {cooldown = 60,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "DRUID",	type = 8}, --Mighty Bash
 
 			--death knight
