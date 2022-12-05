@@ -312,6 +312,8 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
     --hold equipmentSlotId of equipments without an enchant
     local slotsWithoutEnchant = {}
 
+    local gearWithEnchantIds = {}
+
     for equipmentSlotId = 1, 17 do
         local itemLink = GetInventoryItemLink("player", equipmentSlotId)
         if (itemLink) then
@@ -322,34 +324,20 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
             --enchant
                 --check if the slot can receive enchat and if the equipment has an enchant
                 local enchantAttribute = LIB_OPEN_RAID_ENCHANT_SLOTS[equipmentSlotId]
-                if (enchantAttribute) then --this slot can receive an enchat
+                local nEnchantId = 0
 
-                    --check if this slot is relevant for the class, some slots can have enchants only for Agility which won't matter for Priests as an example
-                    --if the value is an integer it points to an attribute (int, dex, str), otherwise it's true (boolean)
-                    local slotIsRelevant = true
-                    if (type(enchantAttribute) == "number") then
-                        if (specMainAttribute ~= enchantAttribute) then
-                            slotIsRelevant = false
-                        end
+                if (enchantAttribute) then --this slot can receive an enchat
+                    if (enchantId and enchantId ~= "") then
+                        local number = tonumber(enchantId)
+                        nEnchantId = number
+                        gearWithEnchantIds[#gearWithEnchantIds+1] = nEnchantId
+                    else
+                        gearWithEnchantIds[#gearWithEnchantIds+1] = 0
                     end
 
-                    if (slotIsRelevant) then
-                        --does the slot has any enchant?
-                        if (not enchantId or enchantId == "0" or enchantId == "") then
-                            slotsWithoutEnchant[#slotsWithoutEnchant+1] = equipmentSlotId
-                        else
-                            --convert to integer
-                            local enchantIdInt = tonumber(enchantId)
-                            if (enchantIdInt) then
-                                --does the enchant is relevent for the character?
-                                if (not LIB_OPEN_RAID_ENCHANT_IDS[enchantIdInt]) then
-                                    slotsWithoutEnchant[#slotsWithoutEnchant+1] = equipmentSlotId
-                                end
-                            else
-                                --the enchat has an invalid id
-                                slotsWithoutEnchant[#slotsWithoutEnchant+1] = equipmentSlotId
-                            end
-                        end
+                    --6400 and above is dragonflight enchantId number space
+                    if (nEnchantId < 6300 and not LIB_OPEN_RAID_DEATHKNIGHT_RUNEFORGING_ENCHANT_IDS[nEnchantId]) then
+                        slotsWithoutEnchant[#slotsWithoutEnchant+1] = equipmentSlotId
                     end
                 end
 
@@ -367,7 +355,7 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
                             slotsWithoutGems[#slotsWithoutGems+1] = equipmentSlotId
 
                         --check if the gem is not a valid gem (deprecated gem)
-                        elseif (not LIB_OPEN_RAID_GEM_IDS[gemId]) then
+                        elseif (gemId < 180000) then
                             slotsWithoutGems[#slotsWithoutGems+1] = equipmentSlotId
                         end
                     end
