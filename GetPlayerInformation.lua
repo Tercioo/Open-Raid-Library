@@ -86,6 +86,20 @@ function openRaidLib.GetBorrowedTalentVersion()
     end
 end
 
+local getDragonflightTalentsExportedString = function()
+    local exportStream = ExportUtil.MakeExportDataStream()
+	local configId = C_ClassTalents.GetActiveConfigID()
+    if (configId) then
+        local configInfo = C_Traits.GetConfigInfo(configId)
+	    local currentSpecID = PlayerUtil.GetCurrentSpecID()
+        local treeInfo = C_Traits.GetTreeInfo(configId, configInfo.treeIDs[1])
+        local treeHash = C_Traits.GetTreeHash(treeInfo.ID)
+        local serializationVersion = C_Traits.GetLoadoutSerializationVersion()
+
+        
+    end
+end
+
 local getDragonflightTalentsAsIndexTable = function()
     local allTalents = {}
     local configId = C_ClassTalents.GetActiveConfigID()
