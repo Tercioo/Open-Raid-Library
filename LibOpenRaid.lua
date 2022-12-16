@@ -64,7 +64,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 87
+local CONST_LIB_VERSION = 88
 
 if (not LIB_OPEN_RAID_MAX_VERSION) then
     LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
@@ -1735,14 +1735,17 @@ local cooldownTimeLeftCheck_Ticker = function(tickerObject)
 end
 
 --after a spell is casted by the player, start a ticker to check its cooldown
-local cooldownStartTicker = function(spellId, cooldownTimeLeft)
+--chargesOnFile is the amount of charges declared in the things to maintain
+local cooldownStartTicker = function(spellId, cooldownTimeLeft, chargesOnFile)
     local existingTicker = openRaidLib.CooldownManager.CooldownTickers[spellId]
     if (existingTicker) then
         --if a ticker already exists, might be the cooldown of a charge
         --if the ticker isn't about to expire, just keep the timer
         --when the ticker finishes it'll check again for charges
-        if (existingTicker.startTime + existingTicker.cooldownTimeLeft - GetTime() > 2) then
-            return
+        if (chargesOnFile and chargesOnFile >= 2) then
+            if (existingTicker.startTime + existingTicker.cooldownTimeLeft - GetTime() > 2) then
+                return
+            end
         end
 
         --cancel the existing ticker
@@ -1960,7 +1963,7 @@ end
 
             --create a timer to monitor the time of this cooldown
             --as there's just a few of them to monitor, there's no issue on creating one timer per spell
-            cooldownStartTicker(spellId, timeLeft)
+            cooldownStartTicker(spellId, timeLeft, LIB_OPEN_RAID_COOLDOWNS_INFO[spellId].charges)
         end
     end
 
