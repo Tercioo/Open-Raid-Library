@@ -2,7 +2,7 @@
 --[=[
 
 Please refer to the docs.txt within this file folder for a guide on how to use this library.
-If you get lost on implementing the lib, be free to contact Tercio on Details! discord: https://discord.gg/AGSzAZX or email to terciob@gmail.com
+If you get lost on implementing the lib, be free to contact Tercio on Details! discord: https://discord.gg/AGSzAZX or email to terciob19@hotmail.com
 
 UnitID:
     UnitID use: "player", "target", "raid18", "party3", etc...
@@ -14,23 +14,6 @@ Code Rules:
     - Internal callbacks are the internal communication of the library, e.g. when an event triggers it send to all modules that registered that event.
     - Public callbacks are callbacks registered by an external addon.
 
-Change Log (most recent on 2022 Nov 18):
-    - added racials with cooldown type 9
-    - added buff duration in the index 6 of the cooldownInfo table returned on any cooldown event
-    - added 'durationSpellId' for cooldowns where the duration effect is another spell other than the casted cooldown spellId, add this member on cooldown table at LIB_OPEN_RAID_COOLDOWNS_INFO
-
-------- Nov 07 and older
-    - added:
-        * added openRaidLib.GetSpellFilters(spellId, defaultFilterOnly, customFiltersOnly) (see docs)
-    - passing a spellId of a non registered cooldown on LIB_OPEN_RAID_COOLDOWNS_INFO will trigger a diagnostic error if diagnostic errors are enabled.
-    - player cast doesn't check anymore for cooldowns in the player spec, now it check towards the cache LIB_OPEN_RAID_PLAYERCOOLDOWNS.
-        LIB_OPEN_RAID_PLAYERCOOLDOWNS is a cache built with cooldowns present in the player spellbook.
-
-    - things to maintain now has 1 file per expansion
-    - player conduits, covenant internally renamed to playerInfo1 and playerInfo2 to make the lib more future proof
-    - player conduits tree is now Borrowed Talents Tree, for future proof
-    - removed the talent size limitation on 7 indexes
-
     - added:
         * openRaidLib.GetFlaskInfoBySpellId(spellId)
         * openRaidLib.GetFlaskTierFromAura(auraInfo)
@@ -39,14 +22,14 @@ Change Log (most recent on 2022 Nov 18):
         * added dragonflight talents support
         * added openRaidLib.RequestCooldownInfo(spellId)
         * added openRaidLib.AddCooldownFilter(filterName, spells)
-    - ensure to register events after 'PLAYER_ENTERING_WORLD' has triggered
 
 TODO:
-    - add into gear info how many tier set parts the player has
+    - [not required as the lib is passing the entire gear equipped] add into gear info how many tier set parts the player has
     - raid lockouts normal-heroic-mythic
 
 BUGS:
     - after a /reload, it is not starting new tickers for spells under cooldown
+    - (asakawa report) after receiving a comm, the callback is firing twice
 
 --]=]
 
@@ -64,7 +47,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 88
+local CONST_LIB_VERSION = 89
 
 if (not LIB_OPEN_RAID_MAX_VERSION) then
     LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
@@ -1689,7 +1672,7 @@ openRaidLib.CooldownManager = {
 }
 
 --check if a cooldown time has changed or finished
---this function run within a ticker, the internal is CONST_COOLDOWN_CHECK_INTERVAL
+--this function run within a ticker, the interval is CONST_COOLDOWN_CHECK_INTERVAL
 local cooldownTimeLeftCheck_Ticker = function(tickerObject)
     local spellId = tickerObject.spellId
 
@@ -1735,7 +1718,9 @@ local cooldownTimeLeftCheck_Ticker = function(tickerObject)
 end
 
 --after a spell is casted by the player, start a ticker to check its cooldown
---chargesOnFile is the amount of charges declared in the things to maintain
+---@spellId: number ---is the spell id of the spell that was casted
+---@cooldownTimeLeft: number ---is the time left of the cooldown
+---@chargesOnFile: number ---is the amount of charges declared in the things to maintain
 local cooldownStartTicker = function(spellId, cooldownTimeLeft, chargesOnFile)
     local existingTicker = openRaidLib.CooldownManager.CooldownTickers[spellId]
     if (existingTicker) then
@@ -1748,14 +1733,14 @@ local cooldownStartTicker = function(spellId, cooldownTimeLeft, chargesOnFile)
             end
         end
 
-        --cancel the existing ticker
+        --check if the existing ticker is not cancelled
         if (not existingTicker:IsCancelled()) then
             existingTicker:Cancel()
         end
     end
 
     --create a new ticker
-    local maxTicks = ceil(cooldownTimeLeft / CONST_COOLDOWN_CHECK_INTERVAL)
+    local maxTicks = ceil(cooldownTimeLeft / CONST_COOLDOWN_CHECK_INTERVAL) + 1
     local newTicker = C_Timer.NewTicker(CONST_COOLDOWN_CHECK_INTERVAL, cooldownTimeLeftCheck_Ticker, maxTicks)
 
     --store the ticker
@@ -1766,6 +1751,7 @@ local cooldownStartTicker = function(spellId, cooldownTimeLeft, chargesOnFile)
     newTicker.endTime = GetTime() + cooldownTimeLeft
 end
 
+--called from the encounter end event, check all tickers and cancel those with a cooldown time left of 0
 function openRaidLib.CooldownManager.CleanupCooldownTickers()
     for spellId, tickerObject in pairs(openRaidLib.CooldownManager.CooldownTickers) do
         local timeLeft, charges, startTimeOffset, duration, auraDuration = openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
@@ -1776,6 +1762,10 @@ function openRaidLib.CooldownManager.CleanupCooldownTickers()
     end
 end
 
+---get the table containing all cooldowns for a unit
+---@param unitName string
+---@param shouldWipe boolean
+---@return table
 local cooldownGetUnitTable = function(unitName, shouldWipe)
     local unitCooldownTable = openRaidLib.CooldownManager.UnitData[unitName]
     --check if the unit has a cooldownTable
@@ -1874,8 +1864,8 @@ end
         end
     end
 
-    --return a table containing values about the cooldown time
-    --values returned: {timeLeft, charges, timeOffset, duration, updateTime}
+    ---return a table containing values about the cooldown time
+    ---values returned: {timeLeft, charges, timeOffset, duration, updateTime}
     function openRaidLib.GetUnitCooldownInfo(unitId, spellId)
         local unitCooldownsTable = openRaidLib.GetUnitCooldowns(unitId)
         if (unitCooldownsTable) then
@@ -1884,6 +1874,7 @@ end
         end
     end
 
+    ---comment: this function is used to calculate the percent of a cooldown
     local calculatePercent = function(timeOffset, duration, updateTime, charges)
         timeOffset = abs(timeOffset)
         local minValue = updateTime - timeOffset
@@ -2211,7 +2202,8 @@ end
 --adds a list of cooldowns for another player in the group
 --this is only called from the received cooldown list from comm
 function openRaidLib.CooldownManager.AddUnitCooldownsList(unitName, cooldownsTable, noCallback)
-    local unitCooldownTable = cooldownGetUnitTable(unitName, true) --sending true to wipe previous data
+    local bShouldWipe = true
+    local unitCooldownTable = cooldownGetUnitTable(unitName, bShouldWipe) --sending true to wipe previous data
     openRaidLib.TCopy(unitCooldownTable, cooldownsTable)
 
     --add the unitName to the list of units detected with the lib
@@ -2649,16 +2641,3 @@ C_Timer.After(0.1, function()
 end)
 
 tempCache.RestoreData()
-
-
---[=[
-3x ...ns/Details/Libs/LibOpenRaid/GetPlayerInformation.lua:603: attempt to index field '?' (a nil value)
-[string "@Interface/AddOns/Details/Libs/LibOpenRaid/GetPlayerInformation.lua"]:634: in function `GetPlayerCooldownStatus'
-[string "@Interface/AddOns/Details/Libs/LibOpenRaid/LibOpenRaid.lua"]:1696: in function `CleanupCooldownTickers'
-[string "@Interface/AddOns/Details/Libs/LibOpenRaid/LibOpenRaid.lua"]:1925: in function <...face/AddOns/Details/Libs/LibOpenRaid/LibOpenRaid.lua:1924>
-[string "=[C]"]: in function `xpcall'
-[string "@Interface/AddOns/Details/Libs/LibOpenRaid/LibOpenRaid.lua"]:506: in function <...face/AddOns/Details/Libs/LibOpenRaid/LibOpenRaid.lua:496>
-
-
-
-]=]
