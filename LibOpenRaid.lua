@@ -47,7 +47,7 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 89
+local CONST_LIB_VERSION = 90
 
 if (not LIB_OPEN_RAID_MAX_VERSION) then
     LIB_OPEN_RAID_MAX_VERSION = CONST_LIB_VERSION
@@ -795,6 +795,8 @@ end
                 openRaidLib.OnEnterWorldRegisterEvents()
 
                 --openRaidLib.AuraTracker.StartScanUnitAuras("player")
+
+                openRaidLib.StartScanningCooldownsRoutine()
 
                 if (IsInGroup()) then
                     openRaidLib.RequestAllData()
@@ -1671,8 +1673,81 @@ openRaidLib.CooldownManager = {
     HasFullCooldownList = {}, --store player names with the library
 }
 
+function openRaidLib.StartScanningCooldownsRoutine()
+    --store spells which isn't ready (most likelly it is on cooldown)
+    local spellCooldownControl = {}
+    local startTime = GetTime()
+    local playerName = UnitName("player")
+
+    --currently this is running only for the spells which doesn't have charges
+
+    C_Timer.NewTicker(0.5, function()
+        --technically, the deltaTie is 0.5, but it is framerate dependent, so we calculate it
+        local deltaTime = GetTime() - startTime
+        startTime = GetTime()
+
+        --check first if the list of cooldown spells is ready
+        if (LIB_OPEN_RAID_PLAYERCOOLDOWNS) then
+            for spellId, spellData in pairs(LIB_OPEN_RAID_PLAYERCOOLDOWNS) do
+                local hasCharges = spellData.charges >= 2
+                if (not hasCharges) then
+                    local timeLeft, charges, startTimeOffset, duration, auraDuration = openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
+
+                    --check if the spell is on cooldown
+                    if (timeLeft > 0) then
+                        if (not spellCooldownControl[spellId]) then
+                            --put the spell on cooldown
+                            spellCooldownControl[spellId] = {
+                                onCooldown = true,
+                                timeLeft = timeLeft,
+                            }
+                        else
+                            --the spell is already on cooldown, check if the time left has changed
+                            local deprectedTimeLeft = spellCooldownControl[spellId].timeLeft - deltaTime
+                            if (not openRaidLib.isNearlyEqual(deprectedTimeLeft, timeLeft, 1.5)) then
+                                --if the prediction failed, then the cooldown time left got changed, the code doesn't know if it got shorter or longer
+                                openRaidLib.CooldownManager.SendPlayerCooldownUpdate(spellId, timeLeft, charges, startTimeOffset, duration, auraDuration)
+
+                                --update locally
+                                    --get the cooldown time for this spell
+                                    openRaidLib.CooldownManager.CooldownSpellUpdate(playerName, spellId, timeLeft, charges, startTimeOffset, duration, auraDuration) --need 7 values
+                                    local playerCooldownTable = openRaidLib.GetUnitCooldowns(playerName)
+                                    local cooldownInfo = openRaidLib.GetUnitCooldownInfo(playerName, spellId)
+                                    openRaidLib.publicCallback.TriggerCallback("CooldownUpdate", "player", spellId, cooldownInfo, playerCooldownTable, openRaidLib.CooldownManager.UnitData)
+                            end
+
+                            --update the time left on the control table for this spell
+                            spellCooldownControl[spellId].timeLeft = timeLeft
+                        end
+                    else
+                        --the spell has no cooldown, check if it was on cooldown before
+                        if (spellCooldownControl[spellId]) then
+                            spellCooldownControl[spellId] = nil
+
+                            --on ENCOUNTER_END all cooldowns are reset, this may trigger a few cooldowns getting ready
+                            --as the lib send a full cooldown update when the encounter end, it is better avoid sending a cooldown update from here
+                            local encounterEndTime = openRaidLib.CooldownManager.EncounterEndTime
+                            if (not encounterEndTime or GetTime() > encounterEndTime+1) then
+                                openRaidLib.CooldownManager.SendPlayerCooldownUpdate(spellId, 0, charges, 0, 0, 0)
+
+                                --update locally
+                                    --get the cooldown time for this spell
+                                    openRaidLib.CooldownManager.CooldownSpellUpdate(playerName, spellId, timeLeft, charges, startTimeOffset, duration, auraDuration) --need 7 values
+                                    local playerCooldownTable = openRaidLib.GetUnitCooldowns(playerName)
+                                    local cooldownInfo = openRaidLib.GetUnitCooldownInfo(playerName, spellId)
+                                    openRaidLib.publicCallback.TriggerCallback("CooldownUpdate", "player", spellId, cooldownInfo, playerCooldownTable, openRaidLib.CooldownManager.UnitData)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end)
+end
+
 --check if a cooldown time has changed or finished
 --this function run within a ticker, the interval is CONST_COOLDOWN_CHECK_INTERVAL
+--atm the ticker is only running for spells with 2 or more charges delcared in the things to maintain list
 local cooldownTimeLeftCheck_Ticker = function(tickerObject)
     local spellId = tickerObject.spellId
 
@@ -1952,9 +2027,10 @@ end
             --send to comm
             openRaidLib.CooldownManager.SendPlayerCooldownUpdate(spellId, timeLeft, charges, startTimeOffset, duration, auraDuration)
 
-            --create a timer to monitor the time of this cooldown
-            --as there's just a few of them to monitor, there's no issue on creating one timer per spell
-            cooldownStartTicker(spellId, timeLeft, LIB_OPEN_RAID_COOLDOWNS_INFO[spellId].charges)
+            --create a ticker to monitor spells with charges
+            if (LIB_OPEN_RAID_COOLDOWNS_INFO[spellId].charges >= 2) then
+                cooldownStartTicker(spellId, timeLeft, LIB_OPEN_RAID_COOLDOWNS_INFO[spellId].charges)
+            end
         end
     end
 
@@ -1989,9 +2065,10 @@ end
     --check cooldown reset after a raid encounter ends finishing ongoing timeLeft tickers
     function openRaidLib.CooldownManager.CheckCooldownsAfterEncounterEnd()
         openRaidLib.CooldownManager.CleanupCooldownTickers()
-        openRaidLib.Schedules.NewUniqueTimer(1 + math.random(1, 4), openRaidLib.CooldownManager.SendAllPlayerCooldowns, "CooldownManager", "sendAllPlayerCooldowns_Schedule")
+        openRaidLib.Schedules.NewUniqueTimer(3 + math.random(1, 4), openRaidLib.CooldownManager.SendAllPlayerCooldowns, "CooldownManager", "sendAllPlayerCooldowns_Schedule")
     end
     function openRaidLib.CooldownManager.OnEncounterEnd()
+        openRaidLib.CooldownManager.EncounterEndTime = GetTime()
         --run on next frame
         openRaidLib.Schedules.NewUniqueTimer(0.1, openRaidLib.CooldownManager.CheckCooldownsAfterEncounterEnd, "CooldownManager", "encounterEndCooldownsCheck_Schedule")
     end
@@ -2590,54 +2667,5 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
     openRaidLib.internalCallback.RegisterCallback("mythicDungeonEnd", openRaidLib.KeystoneInfoManager.OnMythicDungeonFinished)
 
 --------------------------------------------------------------------------------------------------------------------------------
---data
-
---vintage cooldown tracker and interrupt tracker
-C_Timer.After(0.1, function()
-    local vintageCDTrackerFrame = CreateFrame("frame")
-    vintageCDTrackerFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-    local allCooldownsFromLib = LIB_OPEN_RAID_COOLDOWNS_INFO
-    local recentCastedSpells =  {}
-
-    vintageCDTrackerFrame:SetScript("OnEvent", function(self, event, ...)
-        if (event == "UNIT_SPELLCAST_SUCCEEDED") then
-            local unit, castGUID, spellId = ...
-
-            local unitIsThePlayer = UnitIsUnit(unit, "player")
-            if (not unitIsThePlayer) then
-                local unitName = GetUnitName(unit, true)
-                local hasLib = openRaidLib.CooldownManager.HasFullCooldownList[unitName]
-                if (unitName and not hasLib) then
-                    local unitInGroup = UnitInParty(unit) or UnitInRaid(unit)
-                    if (unitInGroup) then
-                        local cooldownInfo = allCooldownsFromLib[spellId]
-                        if (cooldownInfo) then -- and not openRaidLib.GetUnitCooldown(unitName)
-                            --check for cast_success spam from channel spells
-                            local unitCastCooldown = recentCastedSpells[unitName]
-                            if (not unitCastCooldown) then
-                                unitCastCooldown = {}
-                                recentCastedSpells[unitName] = unitCastCooldown
-                            end
-
-                            if (not unitCastCooldown[spellId] or unitCastCooldown[spellId]+5 < GetTime()) then
-                                unitCastCooldown[spellId] = GetTime()
-
-                                --trigger a cooldown usage
-                                local duration = cooldownInfo.duration
-                                --time left, charges, startTimeOffset, duration
-                                openRaidLib.CooldownManager.CooldownSpellUpdate(unitName, spellId, duration, 0, 0, duration, 0)
-                                local cooldownInfo = cooldownGetSpellInfo(unitName, spellId)
-                                local unitCooldownsTable = openRaidLib.GetUnitCooldowns(unitName)
-
-                                --trigger a public callback
-                                openRaidLib.publicCallback.TriggerCallback("CooldownUpdate", openRaidLib.GetUnitID(unitName), spellId, cooldownInfo, unitCooldownsTable, openRaidLib.CooldownManager.UnitData)
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end)
-end)
 
 tempCache.RestoreData()
