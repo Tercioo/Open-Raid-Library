@@ -847,6 +847,9 @@ end
         ["PLAYER_TALENT_UPDATE"] = function(...)
             delayedTalentChange()
         end,
+        ["PLAYER_LOOT_SPEC_UPDATED"] = function(...)
+            delayedTalentChange()
+        end,
         ["TRAIT_CONFIG_UPDATED"] = function(...)
             delayedTalentChange()
         end,
@@ -1164,6 +1167,8 @@ end
         local unitTablePrototype = {
             specId = 0,
             specName = "",
+            lootSpecId = 0,
+            lootSpecName = "",
             role = "",
             renown = 1,
             covenantId = 0,
@@ -1196,12 +1201,20 @@ end
         table.wipe(openRaidLib.UnitInfoManager.UnitData)
     end
 
-    function openRaidLib.UnitInfoManager.SetUnitInfo(unitName, unitInfo, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
+    function openRaidLib.UnitInfoManager.SetUnitInfo(unitName, unitInfo, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked, lootSpecId)
         if (not GetSpecializationInfoByID) then --tbc hot fix
             return
         end
 
         local specId, specName, specDescription, specIcon, role = GetSpecializationInfoByID(specId or 0)
+
+        local lootSpecName = specName
+        if lootSpecId then
+            lootSpecId, lootSpecName = GetSpecializationInfoByID(lootSpecId)
+        else
+            lootSpecId = specId
+        end
+
         local className, classString, classId = UnitClass(unitName)
 
         --cold login bug where the player class info cannot be retrived by the player name, after a /reload it's all good
@@ -1214,6 +1227,8 @@ end
 
         unitInfo.specId = specId or unitInfo.specId
         unitInfo.specName = specName or unitInfo.specName
+        unitInfo.lootSpecId = lootSpecId or unitInfo.lootSpecId
+        unitInfo.lootSpecName = lootSpecName or unitInfo.lootSpecName
         unitInfo.role = role or "DAMAGER"
         unitInfo.renown = renown or unitInfo.renown
         unitInfo.covenantId = covenantId or unitInfo.covenantId
@@ -1227,9 +1242,9 @@ end
         unitInfo.nameFull = unitName
     end
 
-    function openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
+    function openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked, lootSpecId)
         local unitInfo = openRaidLib.UnitInfoManager.GetUnitInfo(unitName, true)
-        openRaidLib.UnitInfoManager.SetUnitInfo(unitName, unitInfo, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked)
+        openRaidLib.UnitInfoManager.SetUnitInfo(unitName, unitInfo, specId, renown, covenantId, talentsTableUnpacked, conduitsTableUnpacked, pvpTalentsTableUnpacked, lootSpecId)
         openRaidLib.publicCallback.TriggerCallback("UnitInfoUpdate", openRaidLib.GetUnitID(unitName), openRaidLib.UnitInfoManager.UnitData[unitName], openRaidLib.UnitInfoManager.GetAllUnitsInfo())
     end
 
@@ -1258,6 +1273,9 @@ end
         local pvpTalentsTableIndex = 3 + 3 + talentsSize + borrowedTalentsSize -- +3 for spec, playerInfo1 and playerInfo2 data | +3 for talents, conduit and pvptalents index for size
         local pvpTalentsSize = data[pvpTalentsTableIndex]
 
+        local lootSpecIdIndex = 3 + 4 + talentsSize + borrowedTalentsSize + pvpTalentsSize -- +3 for spec, playerInfo1 and playerInfo2 data | +4 for talents, conduit, pvptalents, and loot spec ID index for size
+        local lootSpecId = tonumber(data[lootSpecIdIndex])
+
         --unpack the talents data as a ipairs table
         local talentsTableUnpacked = openRaidLib.UnpackTable(data, 4, false, false, talentsSize)
 
@@ -1267,7 +1285,7 @@ end
         --back compatibility with versions without pvp talents
         if (type(data[pvpTalentsTableIndex]) == "string" or not data[pvpTalentsTableIndex]) then
             --add a dummy table as pvp talents
-            openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, playerInfo1, playerInfo2, talentsTableUnpacked, borrowedTalentsTableUnpacked, {0, 0, 0})
+            openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, playerInfo1, playerInfo2, talentsTableUnpacked, borrowedTalentsTableUnpacked, {0, 0, 0}, lootSpecId)
             return
         end
 
@@ -1275,7 +1293,7 @@ end
         local pvpTalentsTableUnpacked = openRaidLib.UnpackTable(data, pvpTalentsTableIndex, false, false, pvpTalentsSize)
 
         --add to the list of players information and also trigger a public callback
-        openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, playerInfo1, playerInfo2, talentsTableUnpacked, borrowedTalentsTableUnpacked, pvpTalentsTableUnpacked)
+        openRaidLib.UnitInfoManager.AddUnitInfo(unitName, specId, playerInfo1, playerInfo2, talentsTableUnpacked, borrowedTalentsTableUnpacked, pvpTalentsTableUnpacked, lootSpecId)
     end
     openRaidLib.commHandler.RegisterComm(CONST_COMM_PLAYERINFO_PREFIX, openRaidLib.UnitInfoManager.OnReceiveUnitFullInfo)
 
@@ -1289,6 +1307,7 @@ function openRaidLib.UnitInfoManager.SendAllPlayerInfo()
     dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[4]) .. "," --player talents class-spec
     dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[5]) .. "," --player talents borrowed
     dataToSend = dataToSend .. openRaidLib.PackTable(playerInfo[6]) .. "," --player talents pvp
+    dataToSend = dataToSend .. playerInfo[7] .. "," --loot spec id
 
     --send the data
     openRaidLib.commHandler.SendCommData(dataToSend)
@@ -1312,10 +1331,12 @@ function openRaidLib.UnitInfoManager.GetPlayerFullInfo()
     end
 
     local specId = 0
+    local lootSpecId = 0
     if (getSpecializationVersion() == CONST_SPECIALIZATION_VERSION_MODERN) then
         local selectedSpecialization = GetSpecialization()
         if (selectedSpecialization) then
             specId = GetSpecializationInfo(selectedSpecialization) or 0
+            lootSpecId = GetLootSpecialization() or 0
         end
     end
     playerInfo[1] = specId
@@ -1337,6 +1358,9 @@ function openRaidLib.UnitInfoManager.GetPlayerFullInfo()
     --pvp talents
     local pvpTalents = openRaidLib.UnitInfoManager.GetPlayerPvPTalents()
     playerInfo[6] = pvpTalents
+
+    --player loot spec
+    playerInfo[7] = lootSpecId
 
     return playerInfo
 end
