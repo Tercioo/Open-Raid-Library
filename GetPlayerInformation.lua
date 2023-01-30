@@ -579,8 +579,10 @@ local updateCooldownAvailableList = function()
 
     --build a list of all spells assigned as cooldowns for the player class
     for spellID, spellData in pairs(LIB_OPEN_RAID_COOLDOWNS_INFO) do
-        if (spellData.class == playerClass or spellData.raceid == playerRaceId) then --need to implement here to get the racial as racial cooldowns does not carry a class
-            if (spellBookSpellList[spellID]) then
+        --type 10 is an item cooldown and does not have a class or raceid
+        if (spellData.class == playerClass or spellData.raceid == playerRaceId or spellData.type == 10) then --need to implement here to get the racial as racial cooldowns does not carry a class
+            --type 10 is an item cooldown and does not have a spellbook entry
+            if (spellBookSpellList[spellID] or spellData.type == 10) then
                 LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellID] = spellData
             end
         end
@@ -644,7 +646,7 @@ function openRaidLib.CooldownManager.GetPlayerCooldownList()
         end
     end
 
-    return {}
+    return {}, {}
 end
 
 --aura frame handles only UNIT_AURA events to grab the duration of the buff placed by the aura
@@ -693,37 +695,43 @@ local getAuraDuration = function(spellId)
     end
 end
 
+---get the duration of a buff placed by a spell
+---@param spellId number
+---@return number duration
 function openRaidLib.CooldownManager.GetSpellBuffDuration(spellId)
     return getAuraDuration(spellId)
 end
 
---check if a player cooldown is ready or if is in cooldown
---@spellId: the spellId to check for cooldown
---return timeLeft, charges, startTimeOffset, duration, buffDuration
+---check if a player cooldown is ready or if is in cooldown
+---@spellId: the spellId to check for cooldown
+---@return number timeLeft
+---@return number charges
+---@return number startTimeOffset
+---@return number duration
+---@return number buffDuration
 function openRaidLib.CooldownManager.GetPlayerCooldownStatus(spellId)
-    --get the cooldown info from the cooldowns database of the lib
+    --check if is a charge spell
     local cooldownInfo = LIB_OPEN_RAID_COOLDOWNS_INFO[spellId]
     if (cooldownInfo) then
         local buffDuration = getAuraDuration(spellId)
-
         local chargesAvailable, chargesTotal, start, duration = GetSpellCharges(spellId)
-        if (chargesAvailable) then
+        if chargesAvailable then
             if (chargesAvailable == chargesTotal) then
                 return 0, chargesTotal, 0, 0, 0 --all charges are ready to use
             else
                 --return the time to the next charge
                 local timeLeft = start + duration - GetTime()
                 local startTimeOffset = start - GetTime()
-                return ceil(timeLeft), chargesAvailable, startTimeOffset, duration, buffDuration --time left, charges, startTime, duration, buffDuration
+                return ceil(timeLeft), chargesAvailable, startTimeOffset, duration, buffDuration
             end
         else
-            local startTime, cooldownDuration = GetSpellCooldown(spellId)
-            if (startTime == 0) then --cooldown is ready
+            local start, duration = GetSpellCooldown(spellId)
+            if (start == 0) then --cooldown is ready
                 return 0, 1, 0, 0, 0 --time left, charges, startTime
             else
-                local timeLeft = startTime + cooldownDuration - GetTime()
-                local startTimeOffset = startTime - GetTime()
-                return ceil(timeLeft), 0, ceil(startTimeOffset), cooldownDuration, buffDuration --time left, charges, startTime, duration, buffDuration
+                local timeLeft = start + duration - GetTime()
+                local startTimeOffset = start - GetTime()
+                return ceil(timeLeft), 0, ceil(startTimeOffset), duration, buffDuration --time left, charges, startTime, duration, buffDuration
             end
         end
     else
@@ -749,7 +757,7 @@ do
         end
     end
 
-	function openRaidLib.AuraTracker.ScanPlayerAuras(unitId)
+	function openRaidLib.AuraTracker.ScanUnitAuras(unitId)
 		local batchCount = nil
 		local usePackedAura = true
         openRaidLib.AuraTracker.CurrentUnitId = unitId
@@ -776,7 +784,7 @@ do
         auraFrameEvent:RegisterUnitEvent("UNIT_AURA", unitId)
 
         auraFrameEvent:SetScript("OnEvent", function()
-            openRaidLib.AuraTracker.ScanPlayerAuras(unitId)
+            openRaidLib.AuraTracker.ScanUnitAuras(unitId)
         end)
     end
 
