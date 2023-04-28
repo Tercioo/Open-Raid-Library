@@ -391,8 +391,7 @@ do
 			[20066] = {cooldown = 15,	duration = 0,	specs = {},			talent = false,	charges = 1,	class = "PALADIN",	type = 8}, --Repentance
 			[4987] = {cooldown = 8,	duration = 0,		specs = {65},				talent = false,	charges = 1,	class = "PALADIN",	type = 7}, --Cleanse
 			[213644] = {cooldown = 8,	duration = 0,	specs = {66,70},			talent = false,	charges = 1,	class = "PALADIN",	type = 7}, --Cleanse Toxins
-			[387174] = {cooldown = 60,	duration = 9,	specs = {66}				talent = false, charges = 1,	class = "PALADIN",	type = 2}, --Eye of Tyr
-						
+
 			--warrior
 			-- 71 - Arms
 			-- 72 - Fury
@@ -516,7 +515,7 @@ do
 			[115450] = {cooldown = 8,	duration = 0,	specs = {270},				talent = false,	charges = 1,	class = "MONK",	type = 7}, --Detox (healer)
 			[218164] = {cooldown = 8,	duration = 0,	specs = {269,268},			talent = false,	charges = 1,	class = "MONK",	type = 7}, --Detox (DPS/Tank)
 			[325153] = {cooldown = 60,	duration = 3,	specs = {268},				talent = false,	charges = 1,	class = "MONK",	type = 2}, --Exploding Keg
-			[322507] = {cooldown = 45,	duration = 0,	specs = {268}				talent = false, charges = 1,	class = "MONK", type = 2}, --Celestial Brew
+
 
 			--hunter
 			-- 253 - Beast Mastery
