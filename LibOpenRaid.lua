@@ -1938,7 +1938,9 @@ end
                 timeLeft, charges, timeOffset, duration, updateTime, auraDuration = openRaidLib.CooldownManager.GetCooldownInfoValues(cooldownInfo)
             end
         end
-
+        if (not timeOffset or not updateTime) then
+            return false, 0, 0, 0, 0, 0, 0, 0
+        end
         return calculatePercent(timeOffset, duration, updateTime, charges)
     end
 
@@ -1955,7 +1957,7 @@ end
     ---@return number duration
     function openRaidLib.GetCooldownStatusFromCooldownInfo(cooldownInfo)
         local timeLeft, charges, timeOffset, duration, updateTime, auraDuration = openRaidLib.CooldownManager.GetCooldownInfoValues(cooldownInfo)
-        if (not timeOffset) then
+        if (not timeOffset or not updateTime) then
             return false, 0, 0, 0, 0, 0, 0, 0
         end
         return calculatePercent(timeOffset, duration, updateTime, charges)
