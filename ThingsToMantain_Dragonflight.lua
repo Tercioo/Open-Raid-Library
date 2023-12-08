@@ -288,6 +288,8 @@ do
 			--defensive potions
 			[6262] = {cooldown = 60,	duration = 0,	specs = {},	talent = false,	charges = 1, class = "", type = 10}, --Healthstone
 			[370511] = {cooldown = 300,	duration = 0,	specs = {},	talent = false,	charges = 1, class = "", type = 10, shareid = 101}, --Refreshing Healing Potion
+			[207023] = {cooldown = 300, duration = 0, 	specs = {}, talent = false, charges = 1, class = "", type = 10, shareid = 101}, -- Dreamwalker's Healing Potion
+			[207041] = {cooldown = 300, duration = 0, 	specs = {}, talent = false, charges = 1, class = "", type = 10, shareid = 101}, -- Potion of Withering Dreams
 
 			--attack potions
 			[371024] = {cooldown = 300,	duration = 30,	specs = {},	talent = false,	charges = 1, class = "", type = 11, shareid = 101}, --Elemental Potion of Power
