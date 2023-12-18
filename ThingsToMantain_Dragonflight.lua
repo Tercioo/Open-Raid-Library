@@ -621,6 +621,7 @@ do
 			[49039] = {cooldown = 120,	duration = 10,	specs = {250, 251, 252},	talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 2}, --Lichborne
 			[194679] = {cooldown = 25,	duration = 4,	specs = {252},				talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 2}, --Rune Tap
 			[194844] = {cooldown = 60,	duration = 0,	specs = {251},				talent = false,	charges = 1,	class = "DEATHKNIGHT",	type = 1}, --Bonestorm
+			[51271] = {cooldown = 60, 	duration = 12, 	specs = {251}, 				talent = false, charges = 1, 	class = "DEATHKNIGHT", type = 1}, -- Pillar of Frost
 
 			--~demon hunter
 			-- 577 - Havoc
@@ -643,6 +644,7 @@ do
 			[370965] = {cooldown = 90,	duration = 0,	specs = {577, 581},			talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 1}, --The Hunt
 			[212084] = {cooldown = 60,	duration = 2,	specs = {581},				talent = false,	charges = 1,	class = "DEMONHUNTER",	type = 2}, --Fel Devastation
 			[203720] = {cooldown = 20,	duration = 6,	specs = {581},				talent = false,	charges = 2,	class = "DEMONHUNTER",	type = 2}, --Demon Spikes
+			[258860] = {cooldown = 40, 	duration = 0, 	specs = {577}, 				talent = true, 	charges = 1, 	class = "DEMONHUNTER", 	type = 1}, -- Essence Break
 
 			--~mage
 			-- 62 - Arcane
@@ -674,6 +676,7 @@ do
 			[157980] = {cooldown = 25,	duration = 0,	specs = {62},				talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Supernova
 			[414660] = {cooldown = 120,	duration = 60,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 4}, --Mass Barrier
 			[414664] = {cooldown = 300,	duration = 12,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 5}, --Mass Invisibility (only out of combat)
+			[321507] = {cooldown = 45, 	duration = 0,	specs = {62}, 				talent = true, charges = 1, 	class = "MAGE", type = 1}, -- Touch of the Magi
 
 			-- This needs more work to actually function
 			--[342245] = {cooldown = 60,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Alter Time
