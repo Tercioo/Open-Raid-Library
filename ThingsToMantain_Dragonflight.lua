@@ -521,6 +521,7 @@ do
 			[218164] = {cooldown = 8,	duration = 0,	specs = {269,268},			talent = false,	charges = 1,	class = "MONK",	type = 7}, --Detox (DPS/Tank)
 			[325153] = {cooldown = 60,	duration = 3,	specs = {268},				talent = false,	charges = 1,	class = "MONK",	type = 2}, --Exploding Keg
 			[115078] = {cooldown = 45,	duration = 60,	specs = {268, 269, 270},	talent = false,	charges = 1,	class = "MONK",	type = 8}, --Paralysis
+			[325216] = {cooldown = 60, 	duration = 0, 	specs = {268, 269}, 		talent = true, charges = 1, 	class = "MONK", type = 1}, -- Bonedust Brew
 
 
 			--~hunter
@@ -677,6 +678,7 @@ do
 			[414660] = {cooldown = 120,	duration = 60,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 4}, --Mass Barrier
 			[414664] = {cooldown = 300,	duration = 12,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 5}, --Mass Invisibility (only out of combat)
 			[321507] = {cooldown = 45, 	duration = 0,	specs = {62}, 				talent = true, charges = 1, 	class = "MAGE", type = 1}, -- Touch of the Magi
+			[314791] = {cooldown = 60, 	duration = 0, 	specs = {62, 63, 64}, 		talent = true, charges = 1, 	class = "MAGE", type = 1}, -- Shifting Power
 
 			-- This needs more work to actually function
 			--[342245] = {cooldown = 60,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Alter Time
