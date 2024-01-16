@@ -503,8 +503,6 @@ end
             commBurstBufferCount = math.min((serverTime ~= commServerTimeLastThrottleUpdate) and commBurstBufferCount + 1 or commBurstBufferCount, CONST_COMM_BURST_BUFFER_COUNT);
             commServerTimeLastThrottleUpdate = serverTime;
 
-            print("CommProcess: ", #commScheduler, commBurstBufferCount);
-
             while(#commScheduler > 0 and commBurstBufferCount > 0) do
                 -- FIFO queue
                 local commData = table.remove(commScheduler, 1);
