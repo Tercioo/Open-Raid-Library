@@ -132,7 +132,7 @@ end
 
     local CONST_USE_DEFAULT_SCHEDULE_TIME = true
 
-    local CONST_COMM_BURST_BUFFER_COUNT = 10
+    local CONST_COMM_BURST_BUFFER_COUNT = 9
 
     local GetContainerNumSlots = GetContainerNumSlots or C_Container.GetContainerNumSlots
     local GetContainerItemID = GetContainerItemID or C_Container.GetContainerItemID
