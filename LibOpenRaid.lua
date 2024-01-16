@@ -537,8 +537,8 @@ end
 
             if (bit.band(flags, CONST_COMM_SENDTO_GUILD)) then --send to guild
                 if (IsInGuild()) then
-                    local commData = {data = dataEncoded, channel = "GUILD"}
-                    table.insert(commScheduler, commData)
+                    --Guild has no 10 msg restriction so send it directly
+                    sendData(dataEncoded, "GUILD");
                 end
             end
         else
