@@ -132,6 +132,7 @@ end
 
     local CONST_USE_DEFAULT_SCHEDULE_TIME = true
 
+    -- Real throttle is 10 messages per 1 second, but we want to be safe due to fact we dont know when it actually resets
     local CONST_COMM_BURST_BUFFER_COUNT = 9
 
     local GetContainerNumSlots = GetContainerNumSlots or C_Container.GetContainerNumSlots
@@ -500,9 +501,13 @@ end
 
         local newTickerHandle = C_Timer.NewTicker(0.05, function()
             local serverTime = GetServerTime();
+
+            -- Replenish the counter if last server time is not the same as the last throttle update
+            -- Clamp it to CONST_COMM_BURST_BUFFER_COUNT
             commBurstBufferCount = math.min((serverTime ~= commServerTimeLastThrottleUpdate) and commBurstBufferCount + 1 or commBurstBufferCount, CONST_COMM_BURST_BUFFER_COUNT);
             commServerTimeLastThrottleUpdate = serverTime;
 
+            -- while (anything in queue) and (throttle allows it)
             while(#commScheduler > 0 and commBurstBufferCount > 0) do
                 -- FIFO queue
                 local commData = table.remove(commScheduler, 1);
