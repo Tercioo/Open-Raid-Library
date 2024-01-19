@@ -43,7 +43,9 @@ if (WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE and not isExpansion_Dragonflight()) t
 end
 
 local major = "LibOpenRaid-1.0"
-local CONST_LIB_VERSION = 121
+
+local CONST_LIB_VERSION = 124
+
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -599,9 +601,9 @@ end
         end
 
         local result, errortext = xpcall(callback, geterrorhandler(), unpack(payload))
-        if (not result) then
-            sendChatMessage("openRaidLib: error on scheduler:", tickerObject.scheduleName, tickerObject.stack)
-        end
+        --if (not result) then
+        --    sendChatMessage("openRaidLib: error on scheduler:", tickerObject.scheduleName, tickerObject.stack)
+        --end
 
         return result
     end
@@ -612,7 +614,7 @@ end
         local newTimer = C_Timer.NewTimer(time, triggerScheduledTick)
         newTimer.payload = payload
         newTimer.callback = callback
-        newTimer.stack = debugstack()
+        --newTimer.stack = debugstack()
         return newTimer
     end
 
@@ -632,7 +634,7 @@ end
         local newTimer = openRaidLib.Schedules.NewTimer(time, callback, ...)
         newTimer.namespace = namespace
         newTimer.scheduleName = scheduleName
-        newTimer.stack = debugstack()
+        --newTimer.stack = debugstack()
         newTimer.isUnique = true
 
         local registeredUniqueTimers = openRaidLib.Schedules.registeredUniqueTimers
@@ -2710,7 +2712,7 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
         end
 
         if (IsInGuild()) then
-            openRaidLib.Schedules.NewUniqueTimer(math.random(0, 10) + math.random(), openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToGuild, "KeystoneInfoManager", "sendKeystoneInfoToGuild_Schedule")
+            openRaidLib.Schedules.NewUniqueTimer(math.random(0, 6) + math.random(), openRaidLib.KeystoneInfoManager.SendPlayerKeystoneInfoToGuild, "KeystoneInfoManager", "sendKeystoneInfoToGuild_Schedule")
         end
     end
     openRaidLib.commHandler.RegisterComm(CONST_COMM_KEYSTONE_DATAREQUEST_PREFIX, openRaidLib.KeystoneInfoManager.OnReceiveRequestData)
