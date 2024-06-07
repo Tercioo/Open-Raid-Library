@@ -25,7 +25,6 @@ local CONST_ISITEM_BY_TYPEID = {
     [12] = true, --utility items
 }
 
-local GetItemInfo = GetItemInfo
 local GetItemStats = GetItemStats
 local GetInventoryItemLink = GetInventoryItemLink
 
