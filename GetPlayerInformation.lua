@@ -25,11 +25,11 @@ local CONST_ISITEM_BY_TYPEID = {
     [12] = true, --utility items
 }
 
-local GetItemStats = GetItemStats
 local GetInventoryItemLink = GetInventoryItemLink
 
 -- TWW compat
 -- TODO: Remove when TWW is released
+local GetItemStats = C_Item.GetItemStats
 local GetSpellInfo = GetSpellInfo or function(spellID) 
     if not spellID then return nil end 
 
@@ -404,7 +404,7 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
                 --local itemStatsTable = {}
                 --fill the table above with information about the item
                 --GetItemStats(itemLink, itemStatsTable) --deprecated in 10.2.5
-                local itemStatsTable = C_Item.GetItemStats(itemLink)
+                local itemStatsTable = GetItemStats(itemLink)
 
                 --check if the item has a socket
                 if (itemStatsTable) then
@@ -445,7 +445,7 @@ function openRaidLib.GearManager.BuildPlayerEquipmentList()
                 openRaidLib.__errors[#openRaidLib.__errors+1] = "Fail to get Item Level: " .. (itemID or "invalid itemID") .. " " .. (itemLink and itemLink:gsub("|H", "") or "invalid itemLink")
             end
 
-            local itemStatsTable = C_Item.GetItemStats(itemLink)
+            local itemStatsTable = GetItemStats(itemLink)
             --GetItemStats(itemLink, itemStatsTable)
             local gemSlotsAvailable = itemStatsTable and itemStatsTable.EMPTY_SOCKET_PRISMATIC or 0
 
