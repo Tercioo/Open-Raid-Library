@@ -56,6 +56,11 @@ local GetNumSpellTabs = GetNumSpellTabs or C_SpellBook.GetNumSpellBookSkillLines
 local spellBookPlayerEnum = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or "player"
 local HasPetSpells = HasPetSpells or C_SpellBook.HasPetSpells
 local GetOverrideSpell = C_SpellBook.GetOverrideSpell or C_Spell.GetOverrideSpell
+local GetSpellCharges = GetSpellCharges or function(id)
+    local chargeInfo = C_Spell.GetSpellCharges(id)
+    if not chargeInfo then return end
+    return chargeInfo.currentCharges, chargeInfo.maxCharges, chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration, chargeInfo.chargeModRate
+end
 
 local isTimewalkWoW = function()
     local _, _, _, buildInfo = GetBuildInfo()
