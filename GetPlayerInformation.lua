@@ -629,7 +629,7 @@ local getSpellListAsHashTableFromSpellBook = function()
     for entryOffset = offset, tabEnd - 1 do
         local spellType, spellId = GetSpellBookItemInfo(entryOffset, spellBookPlayerEnum)
         if (spellId) then
-            if (spellType == "SPELL") then
+            if (spellType == "SPELL" or spellType == 1) then
                 spellId = GetOverrideSpell(spellId)
                 local spellName = GetSpellInfo(spellId)
                 local bIsPassive = IsPassiveSpell(spellId, spellBookPlayerEnum)
