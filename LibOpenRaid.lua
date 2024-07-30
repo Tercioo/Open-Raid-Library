@@ -44,7 +44,7 @@ end
 
 local major = "LibOpenRaid-1.0"
 
-local CONST_LIB_VERSION = 132
+local CONST_LIB_VERSION = 133
 
 if (LIB_OPEN_RAID_MAX_VERSION) then
     if (CONST_LIB_VERSION <= LIB_OPEN_RAID_MAX_VERSION) then
@@ -72,6 +72,8 @@ end
 --default values
     openRaidLib.inGroup = false
     openRaidLib.UnitIDCache = {}
+
+    openRaidLib.Util = openRaidLib.Util or {}
 
     local CONST_CVAR_TEMPCACHE = "LibOpenRaidTempCache"
     local CONST_CVAR_TEMPCACHE_DEBUG = "LibOpenRaidTempCacheDebug"
