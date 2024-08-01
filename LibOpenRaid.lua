@@ -2632,9 +2632,11 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
                 local itemId = GetContainerItemID(backpackId, slotId)
                 if (itemId == LIB_OPEN_RAID_MYTHICKEYSTONE_ITEMID) then
                     local itemLink = GetContainerItemLink(backpackId, slotId)
-                    local destroyedItemLink = itemLink:gsub("|", "")
-                    local color, itemID, mythicPlusMapID = strsplit(":", destroyedItemLink)
-                    return tonumber(mythicPlusMapID)
+                    if (itemLink) then				
+	                local destroyedItemLink = itemLink:gsub("|", "")
+	                local color, itemID, mythicPlusMapID = strsplit(":", destroyedItemLink)
+	                return tonumber(mythicPlusMapID)
+		    end
                 end
             end
         end
