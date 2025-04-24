@@ -3287,8 +3287,8 @@ openRaidLib.commHandler.RegisterComm(CONST_COMM_COOLDOWNREQUEST_PREFIX, openRaid
         --- I really just want this whole thing
         local summary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary("player")
 
-        ratingInfo.currentSeasonScore = summary.currentSeasonScore or 0
-        ratingInfo.runs = summary.runs or {}
+        ratingInfo.currentSeasonScore = summary and summary.currentSeasonScore or 0
+        ratingInfo.runs = summary and summary.runs or {}
         
         local _, _, playerClassID = UnitClass("player")
         ratingInfo.classID = playerClassID
