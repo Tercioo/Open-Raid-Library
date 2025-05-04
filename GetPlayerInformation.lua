@@ -481,7 +481,7 @@ function openRaidLib.GearManager.GetPlayerGemsAndEnchantInfo()
         local itemLink = GetInventoryItemLink("player", equipmentSlotId)
         if (itemLink) then
             --get the information from the item
-            local _, itemId, enchantId, gemId1, gemId2, gemId3, gemId4, suffixId, uniqueId, levelOfTheItem, specId, upgradeInfo, instanceDifficultyId, numBonusIds, restLink = strsplit(":", itemLink)
+            local itemQuality, hyperlinkType, itemId, enchantId, gemId1, gemId2, gemId3, gemId4, suffixId, uniqueId, levelOfTheItem, specId, upgradeInfo, instanceDifficultyId, numBonusIds, restLink = strsplit(":", itemLink)
             local gemsIds = {gemId1, gemId2, gemId3, gemId4}
 
             --enchant
@@ -539,7 +539,7 @@ function openRaidLib.GearManager.BuildPlayerEquipmentList()
         local itemLink = GetInventoryItemLink("player", equipmentSlotId)
         if (itemLink) then
             --local itemStatsTable = {}
-            local itemID, enchantID, gemID1, gemID2, gemID3, gemID4, suffixID, uniqueID, linkLevel, specializationID, modifiersMask, itemContext = select(2, strsplit(":", itemLink))
+            local itemID, enchantID, gemID1, gemID2, gemID3, gemID4, suffixID, uniqueID, linkLevel, specializationID, modifiersMask, itemContext = select(3, strsplit(":", itemLink))
             itemID = tonumber(itemID)
 
             local effectiveILvl, isPreview, baseILvl = GetDetailedItemLevelInfo(itemLink)
