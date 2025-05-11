@@ -489,7 +489,15 @@ end
     openRaidLib.commHandler.eventFrame = CreateFrame("frame")
     openRaidLib.commHandler.eventFrame:RegisterEvent("CHAT_MSG_ADDON")
     openRaidLib.commHandler.eventFrame:RegisterEvent("CHAT_MSG_ADDON_LOGGED")
-    openRaidLib.commHandler.eventFrame:SetScript("OnEvent", openRaidLib.commHandler.OnReceiveComm)
+
+    local aceComm = LibStub:GetLibrary("AceComm-3.0", true)
+    if (aceComm) then
+        aceComm:RegisterComm(CONST_COMM_PREFIX, function(...)
+            openRaidLib.commHandler:OnReceiveComm("CHAT_MSG_ADDON", ...)
+        end)
+    else
+        openRaidLib.commHandler.eventFrame:SetScript("OnEvent", openRaidLib.commHandler.OnReceiveComm)
+    end
 
     openRaidLib.commHandler.commCallback = {
                                             --when transmiting
