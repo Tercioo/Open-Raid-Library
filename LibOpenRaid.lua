@@ -2246,7 +2246,7 @@ local cooldownStartTicker = function(spellId, cooldownTimeLeft)
     local maxTicks = ceil(cooldownTimeLeft / tickInterval)
     local latencyCompensation = 0
 
-    local cooldownOptions = LIB_OPEN_RAID_COOLDOWNS_CONFIG[spellId]
+    local cooldownOptions = LIB_OPEN_RAID_COOLDOWNS_CONFIG and LIB_OPEN_RAID_COOLDOWNS_CONFIG[spellId]
     if (cooldownOptions) then
         if (cooldownOptions.tickInterval) then
             tickInterval = cooldownOptions.tickInterval
