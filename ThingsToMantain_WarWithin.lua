@@ -61,6 +61,7 @@ do
         -- TODO: Confirm
 		LIB_OPEN_RAID_ENCHANT_SLOTS = {
 			--[INVSLOT_NECK] = true,
+			[INVSLOT_HEAD] = true,
 			[INVSLOT_BACK] = true,
 			[INVSLOT_CHEST] = true,
 			[INVSLOT_FINGER1] = true,
