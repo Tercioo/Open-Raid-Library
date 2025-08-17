@@ -645,6 +645,7 @@ do
 			[389794] = {cooldown = 45,	duration = 0,	pvp = true,	specs = {662, 63, 64},	talent = false,	charges = 1,	class = "MAGE",	type = 8}, --Snowdrift
 			[414660] = {cooldown = 120,	duration = 60,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 4, cdtype = "DR"}, --Mass Barrier
 			[414664] = {cooldown = 300,	duration = 12,	specs = {63, 64, 62},		talent = false,	charges = 1,	class = "MAGE",	type = 5}, --Mass Invisibility (only out of combat)
+			[449700] = {cooldown = 40,    duration = 0,    specs = {},    talent = false,    charges = 1,    class = "MAGE",    type = 8}, --Gravity Lapse
 
 			-- This needs more work to actually function
 			--[342245] = {cooldown = 60,	duration = 0,	specs = {},					talent = false,	charges = 1,	class = "MAGE",	type = 2}, --Alter Time
