@@ -161,8 +161,9 @@ do
 
         --on use spell ids
 		LIB_OPEN_RAID_ALL_POTIONS = {
+			[1238009] = true, --Invigorating Healing Potion
 			[431419] = true, --Cavedweller's Delight
-			[431416] = true, --Healing Potion algari
+			[431416] = true, --Healing Potion Algari
 			[431914] = true, --Potion of Unwavering Focus
 			[431932] = true, --Tempered Potion
 			[453205] = true, --Potion Bomb of Power
@@ -180,7 +181,7 @@ do
 		--spellId of healing from potions
 		LIB_OPEN_RAID_HEALING_POTIONS = {
 			[1238009] = true, --Invigorating Healing Potion
-			[431416] = true, --Healing Potion algari
+			[431416] = true, --Healing Potion Algari
 			[431419] = true, --Cavedweller's Delight
 			[452767] = true, --Heartseeking Health Injector (engineering tinker)
 		}
