@@ -82,6 +82,16 @@ end
     --locals
     local unpack = table.unpack or _G.unpack
 
+    -- Helper function to detect Midnight secret values
+    -- Secret values pass type() checks but fail on comparison/arithmetic
+    local function issecretvalue(value)
+        if value == nil then return false end
+        local success = pcall(function()
+            local _ = value > 0
+        end)
+        return not success
+    end
+
     openRaidLib.__errors = {} --/dump LibStub:GetLibrary("LibOpenRaid-1.0").__errors
 
 --default values
@@ -1188,7 +1198,8 @@ end
             if (UnitIsUnit(unitId, "player")) then
                 openRaidLib.Schedules.NewUniqueTimer(1.1, function() openRaidLib.internalCallback.TriggerEvent("playerPetChange") end, "mainControl", "petStatus_Schedule")
                 --if the pet is alive, register to know when it dies
-                if (UnitExists("pet") and UnitHealth("pet") >= 1) then
+                local petHealth = UnitHealth("pet")
+                if (UnitExists("pet") and not issecretvalue(petHealth) and petHealth >= 1) then
                     eventFrame:RegisterUnitEvent("UNIT_FLAGS", "pet")
                 end
             end
@@ -1196,7 +1207,7 @@ end
 
         ["UNIT_FLAGS"] = function(unitId)
             local petHealth = UnitHealth(unitId)
-            if (petHealth < 1) then
+            if (UnitExists(unitId) and not issecretvalue(petHealth) and petHealth < 1) then
                 eventFrame:UnregisterEvent("UNIT_FLAGS")
                 openRaidLib.eventFunctions["UNIT_PET"]("player")
             end
