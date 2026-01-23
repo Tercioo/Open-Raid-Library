@@ -98,6 +98,16 @@ end
     --locals
     local unpack = table.unpack or _G.unpack
 
+    -- Helper function to detect Midnight secret values
+    -- Secret values pass type() checks but fail on comparison/arithmetic
+    local function issecretvalue(value)
+        if value == nil then return false end
+        local success = pcall(function()
+            local _ = value > 0
+        end)
+        return not success
+    end
+
     openRaidLib.__errors = {} --/dump LibStub:GetLibrary("LibOpenRaid-1.0").__errors
 
 --default values
@@ -1219,7 +1229,8 @@ end
             if (UnitIsUnit(unitId, "player")) then
                 openRaidLib.Schedules.NewUniqueTimer(1.1, function() openRaidLib.internalCallback.TriggerEvent("playerPetChange") end, "mainControl", "petStatus_Schedule")
                 --if the pet is alive, register to know when it dies
-                if (UnitExists("pet") and UnitHealth("pet") >= 1) then
+                local petHealth = UnitHealth("pet")
+                if (UnitExists("pet") and not issecretvalue(petHealth) and petHealth >= 1) then
                     eventFrame:RegisterUnitEvent("UNIT_FLAGS", "pet")
                 end
             end
@@ -1227,7 +1238,7 @@ end
 
         ["UNIT_FLAGS"] = function(unitId)
             local petHealth = UnitHealth(unitId)
-            if (petHealth < 1) then
+            if (UnitExists(unitId) and not issecretvalue(petHealth) and petHealth < 1) then
                 eventFrame:UnregisterEvent("UNIT_FLAGS")
                 openRaidLib.eventFunctions["UNIT_PET"]("player")
             end
@@ -2346,6 +2357,11 @@ end
 --only update the db, no other action is taken
 --cooldownInfo: [1] timeLeft [2] charges [3] startOffset [4] duration [5] updateTime [6] auraDuration
 function openRaidLib.CooldownManager.CooldownSpellUpdate(unitName, spellId, newTimeLeft, newCharges, startTimeOffset, duration, auraDuration)
+    --validate spellId to prevent "table index is secret" errors
+    if (type(spellId) ~= "number") then
+        return
+    end
+
     --get the cooldown table where all cooldowns are stored for this unit
     local unitCooldownTable = cooldownGetUnitTable(unitName)
     --is this a cooldown info?
@@ -2494,6 +2510,11 @@ end
     end
 
     function openRaidLib.CooldownManager.OnPlayerCast(event, spellId, isPlayerPet) --~cast
+        --validate spellId to prevent "table index is secret" errors
+        if (type(spellId) ~= "number") then
+            return
+        end
+
         --player casted a spell, check if the spell is registered as cooldown
         --issue: pet spells isn't in this table yet, might mess with pet interrupts
         if (LIB_OPEN_RAID_PLAYERCOOLDOWNS[spellId]) then --check if the casted spell is a cooldown the player has available
@@ -2707,26 +2728,32 @@ function openRaidLib.CooldownManager.OnReceiveUnitCooldownChanges(data, unitName
 
         local cooldownsAddedUnpacked = openRaidLib.UnpackTable(addedCooldowns, 1, true, true, CONST_COOLDOWN_INFO_SIZE)
         for spellId, cooldownInfo in pairs(cooldownsAddedUnpacked) do
-            --add the spell into the list of cooldowns of this unit
-            local timeLeft, charges, timeOffset, duration, updateTime, auraDuration = openRaidLib.CooldownManager.GetCooldownInfoValues(cooldownInfo)
-            openRaidLib.CooldownManager.CooldownSpellUpdate(unitName, spellId, timeLeft, charges, timeOffset, duration, auraDuration)
+            --validate spellId to prevent "table index is secret" errors
+            if (type(spellId) == "number") then
+                --add the spell into the list of cooldowns of this unit
+                local timeLeft, charges, timeOffset, duration, updateTime, auraDuration = openRaidLib.CooldownManager.GetCooldownInfoValues(cooldownInfo)
+                openRaidLib.CooldownManager.CooldownSpellUpdate(unitName, spellId, timeLeft, charges, timeOffset, duration, auraDuration)
 
-            --mark the filter cache of this unit as dirt
-            openRaidLib.CooldownManager.NeedRebuildFilters[unitName] = true
+                --mark the filter cache of this unit as dirt
+                openRaidLib.CooldownManager.NeedRebuildFilters[unitName] = true
 
-            --trigger public callback
-            openRaidLib.publicCallback.TriggerCallback("CooldownAdded", openRaidLib.GetUnitID(unitName), spellId, cooldownInfo, openRaidLib.GetUnitCooldowns(unitName), openRaidLib.CooldownManager.UnitData)
+                --trigger public callback
+                openRaidLib.publicCallback.TriggerCallback("CooldownAdded", openRaidLib.GetUnitID(unitName), spellId, cooldownInfo, openRaidLib.GetUnitCooldowns(unitName), openRaidLib.CooldownManager.UnitData)
+            end
         end
     end
 
     if (#removedCooldowns > 0) then
         for _, spellId in ipairs(removedCooldowns) do
-            --remove the spell from this unit cooldown list
-            currentCooldowns[spellId] = nil
-            --mark the filter cache of this unit as dirt
-            openRaidLib.CooldownManager.NeedRebuildFilters[unitName] = true
-            --trigger public callback
-            openRaidLib.publicCallback.TriggerCallback("CooldownRemoved", openRaidLib.GetUnitID(unitName), spellId, openRaidLib.GetUnitCooldowns(unitName), openRaidLib.CooldownManager.UnitData)
+            --validate spellId to prevent "table index is secret" errors
+            if (type(spellId) == "number") then
+                --remove the spell from this unit cooldown list
+                currentCooldowns[spellId] = nil
+                --mark the filter cache of this unit as dirt
+                openRaidLib.CooldownManager.NeedRebuildFilters[unitName] = true
+                --trigger public callback
+                openRaidLib.publicCallback.TriggerCallback("CooldownRemoved", openRaidLib.GetUnitID(unitName), spellId, openRaidLib.GetUnitCooldowns(unitName), openRaidLib.CooldownManager.UnitData)
+            end
         end
     end
 
@@ -2828,8 +2855,8 @@ openRaidLib.commHandler.RegisterORComm(CONST_COMM_COOLDOWNUPDATE_PREFIX, functio
     local duration = tonumber(dataAsArray[5])
     local auraDuration = tonumber(dataAsArray[6])
 
-    --check integrity
-    if (not spellId or spellId == 0) then
+    --check integrity (also validates type to prevent "table index is secret" errors)
+    if (type(spellId) ~= "number" or spellId == 0) then
         return openRaidLib.DiagnosticError("CooldownManager|comm received|spellId is invalid")
 
     elseif (not cooldownTimer) then
@@ -2952,6 +2979,11 @@ end
 
 function openRaidLib.CooldownManager.OnReceiveRequestForCooldownInfoUpdate(data, unitName)
     local spellId = tonumber(data[1])
+
+    --validate spellId to prevent "table index is secret" errors
+    if (type(spellId) ~= "number") then
+        return
+    end
 
     --check if this unit has this cooldown in its list of cooldowns
     if (not cooldownGetSpellInfo(UnitName("player"), spellId)) then
@@ -3604,7 +3636,12 @@ local createLocalCooldownTracker = function()
                     local unitInGroup = UnitInParty(unitId) or UnitInRaid(unitId)
                     if (unitInGroup) then
                         --check if the library has the spell in the list of cooldowns
-                        local spellData = allCooldownsFromLib[spellId]
+                        --use pcall to prevent "table index is secret" errors in Midnight
+                        --secret values pass all type checks but fail as table indices
+                        local success, spellData = pcall(function() return allCooldownsFromLib[spellId] end)
+                        if (not success) then
+                            return
+                        end
 
                         --check for overwrite spell ids
 
